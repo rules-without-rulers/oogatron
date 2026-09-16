@@ -12,9 +12,9 @@ crons = ["*/10 * * * *"]
 [[d1_databases]]
 binding = "DB"
 database_name = "oogatron"
-database_id = "PLACEHOLDER_D1_ID"
+database_id = "a7240dfc-d6e1-44e0-a302-0837f3ecf9ab"
 migrations_dir = "migrations"
 
 [[kv_namespaces]]
 binding = "CACHE"
-id = "PLACEHOLDER_KV_ID"
+id = "9befda5d95c94c00aa0f56d0250202d7"

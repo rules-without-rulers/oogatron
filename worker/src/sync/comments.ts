@@ -88,7 +88,9 @@ export function parseIssuesPage(data: Record<string, unknown>): {
   if (!conn)
     return { issues: [], pageInfo: { hasNextPage: false, endCursor: null } };
   return {
-    issues: conn.nodes as GqlIssue[],
+    issues: (conn.nodes as Array<GqlIssue | null>).filter(
+      (n): n is GqlIssue => n !== null,
+    ),
     pageInfo: conn.pageInfo as PageInfo,
   };
 }
@@ -233,13 +235,15 @@ export function parseCommitCommentsPage(data: Record<string, unknown>): {
   const conn = (data as any).repository?.commitComments;
   if (!conn)
     return { events: [], pageInfo: { hasNextPage: false, endCursor: null } };
-  const events = (conn.nodes as GqlCommitComment[]).map((c) => ({
-    type: "comment_commit" as const,
-    externalId: c.id,
-    occurredAt: c.createdAt,
-    actor: actorFrom(c.author),
-    payload: { commitOid: c.commit?.oid ?? null },
-  }));
+  const events = (conn.nodes as Array<GqlCommitComment | null>)
+    .filter((c): c is GqlCommitComment => c !== null)
+    .map((c) => ({
+      type: "comment_commit" as const,
+      externalId: c.id,
+      occurredAt: c.createdAt,
+      actor: actorFrom(c.author),
+      payload: { commitOid: c.commit?.oid ?? null },
+    }));
   return { events, pageInfo: conn.pageInfo as PageInfo };
 }
 

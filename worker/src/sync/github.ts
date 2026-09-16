@@ -55,7 +55,24 @@ export async function githubGraphQL(
       if (body.errors.some((e) => e.type === "RATE_LIMITED")) {
         throw new RateLimited(body.errors[0].message);
       }
-      throw new Error(`GitHub GraphQL errors: ${JSON.stringify(body.errors)}`);
+      // GitHub returns partial data alongside INTERNAL/NOT_FOUND errors for
+      // individual nodes it cannot resolve (e.g. entropylab PR #12 is a ghost
+      // record: counted by the connection but unresolvable even via REST).
+      // Use the partial data — parsers skip the null node slots.
+      const tolerable = body.errors.every(
+        (e) => e.type === "INTERNAL" || e.type === "NOT_FOUND",
+      );
+      if (!body.data || !tolerable) {
+        throw new Error(
+          `GitHub GraphQL errors: ${JSON.stringify(body.errors)}`,
+        );
+      }
+      console.warn(
+        JSON.stringify({
+          event: "graphql_partial_response",
+          errors: body.errors,
+        }),
+      );
     }
     if (!body.data) throw new Error("GitHub GraphQL: empty data");
 

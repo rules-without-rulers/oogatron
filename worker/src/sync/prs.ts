@@ -216,7 +216,11 @@ export function parsePrsPage(data: Record<string, unknown>): {
   const conn = (data as any).repository?.pullRequests;
   if (!conn)
     return { prs: [], pageInfo: { hasNextPage: false, endCursor: null } };
-  return { prs: conn.nodes as GqlPr[], pageInfo: conn.pageInfo as PageInfo };
+  // Null slots are nodes GitHub failed to resolve (partial responses).
+  const prs = (conn.nodes as Array<GqlPr | null>).filter(
+    (n): n is GqlPr => n !== null,
+  );
+  return { prs, pageInfo: conn.pageInfo as PageInfo };
 }
 
 // Drains follow-up fetches for one page of PRs. Returns false if the budget

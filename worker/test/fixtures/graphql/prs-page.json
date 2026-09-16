@@ -4,6 +4,7 @@
       "pullRequests": {
         "pageInfo": { "hasNextPage": false, "endCursor": "pr-cursor-1" },
         "nodes": [
+          null,
           {
             "id": "PR_kwDOtest0001",
             "number": 1,

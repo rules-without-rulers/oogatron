@@ -58,7 +58,9 @@ export function parseCommitsPage(data: Record<string, unknown>): {
   }
   const events: ParsedEvent[] = [];
   let maxSeen: string | null = null;
-  for (const node of history.nodes as CommitNode[]) {
+  for (const node of (history.nodes as Array<CommitNode | null>).filter(
+    (n): n is CommitNode => n !== null,
+  )) {
     maxSeen = maxIso(maxSeen, node.committedDate);
     const user = node.author?.user ?? null;
     events.push({
