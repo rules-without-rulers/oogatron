@@ -22,3 +22,16 @@ jobs:
       - run: npm run typecheck
       - run: npm run lint
       - run: npm test
+
+  harness:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: package-lock.json
+      - run: npm ci
+      - name: Headless harness smoke test (clean console, webgl2 + canvas2d)
+        run: node scripts/smoke-harness.mjs

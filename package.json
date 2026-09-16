@@ -1,0 +1,11 @@
+{
+  "name": "oogatron",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "smoke": "node scripts/smoke-harness.mjs"
+  },
+  "devDependencies": {
+    "puppeteer-core": "^24"
+  }
+}
