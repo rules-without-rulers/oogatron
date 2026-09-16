@@ -1,0 +1,139 @@
+{
+  "data": {
+    "repository": {
+      "pullRequests": {
+        "pageInfo": { "hasNextPage": false, "endCursor": "pr-cursor-1" },
+        "nodes": [
+          {
+            "id": "PR_kwDOtest0001",
+            "number": 1,
+            "title": "Add entropy sampler",
+            "state": "MERGED",
+            "createdAt": "2026-01-08T09:00:00Z",
+            "updatedAt": "2026-01-10T09:00:00Z",
+            "mergedAt": "2026-01-10T09:00:00Z",
+            "additions": 120,
+            "deletions": 8,
+            "author": {
+              "login": "alice",
+              "avatarUrl": "https://avatars.example.com/alice.png",
+              "__typename": "User",
+              "databaseId": 1001
+            },
+            "reviews": {
+              "pageInfo": { "hasNextPage": false, "endCursor": null },
+              "nodes": [
+                {
+                  "id": "PRR_pending01",
+                  "state": "PENDING",
+                  "body": "draft notes",
+                  "submittedAt": null,
+                  "author": {
+                    "login": "dana",
+                    "avatarUrl": "https://avatars.example.com/dana.png",
+                    "__typename": "User",
+                    "databaseId": 3003
+                  },
+                  "comments": {
+                    "pageInfo": { "hasNextPage": false, "endCursor": null },
+                    "nodes": []
+                  }
+                },
+                {
+                  "id": "PRR_container02",
+                  "state": "COMMENTED",
+                  "body": "",
+                  "submittedAt": "2026-01-09T09:00:00Z",
+                  "author": {
+                    "login": "dana",
+                    "avatarUrl": "https://avatars.example.com/dana.png",
+                    "__typename": "User",
+                    "databaseId": 3003
+                  },
+                  "comments": {
+                    "pageInfo": { "hasNextPage": false, "endCursor": null },
+                    "nodes": [
+                      {
+                        "id": "PRRC_line01",
+                        "createdAt": "2026-01-09T09:00:00Z",
+                        "author": {
+                          "login": "dana",
+                          "avatarUrl": "https://avatars.example.com/dana.png",
+                          "__typename": "User",
+                          "databaseId": 3003
+                        }
+                      }
+                    ]
+                  }
+                },
+                {
+                  "id": "PRR_approved03",
+                  "state": "APPROVED",
+                  "body": "LGTM, nice cleanup.",
+                  "submittedAt": "2026-01-09T10:00:00Z",
+                  "author": {
+                    "login": "erik",
+                    "avatarUrl": "https://avatars.example.com/erik.png",
+                    "__typename": "User",
+                    "databaseId": 4004
+                  },
+                  "comments": {
+                    "pageInfo": { "hasNextPage": false, "endCursor": null },
+                    "nodes": []
+                  }
+                }
+              ]
+            },
+            "comments": {
+              "pageInfo": { "hasNextPage": false, "endCursor": null },
+              "nodes": [
+                {
+                  "id": "IC_ci01",
+                  "createdAt": "2026-01-08T12:00:00Z",
+                  "author": {
+                    "login": "github-actions",
+                    "avatarUrl": "https://avatars.example.com/gha.png",
+                    "__typename": "Bot",
+                    "databaseId": 41898282
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "id": "PR_kwDOtest0002",
+            "number": 2,
+            "title": "Sketch island shader",
+            "state": "OPEN",
+            "createdAt": "2026-01-11T09:00:00Z",
+            "updatedAt": "2026-01-12T09:00:00Z",
+            "mergedAt": null,
+            "additions": 55,
+            "deletions": 0,
+            "author": null,
+            "reviews": {
+              "pageInfo": { "hasNextPage": false, "endCursor": null },
+              "nodes": []
+            },
+            "comments": {
+              "pageInfo": { "hasNextPage": false, "endCursor": null },
+              "nodes": [
+                {
+                  "id": "IC_alice01",
+                  "createdAt": "2026-01-12T09:00:00Z",
+                  "author": {
+                    "login": "alice",
+                    "avatarUrl": "https://avatars.example.com/alice.png",
+                    "__typename": "User",
+                    "databaseId": 1001
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+    "rateLimit": { "remaining": 4890, "resetAt": "2026-01-15T00:00:00Z" }
+  }
+}

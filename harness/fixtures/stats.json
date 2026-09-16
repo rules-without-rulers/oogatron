@@ -1,0 +1,38 @@
+{
+  "meta": {
+    "generated_at": "2026-09-16T00:00:00Z",
+    "repo": "OogaBoogaX/entropylab",
+    "schema_version": 1
+  },
+  "totals": {
+    "contributors": 1,
+    "commits": 1,
+    "prs": 0,
+    "reviews": 0,
+    "comments": { "issue": 0, "review": 0, "commit": 0, "all": 0 }
+  },
+  "leaderboards": {
+    "commits": [{ "login": "placeholder", "count": 1 }],
+    "prs": [],
+    "reviews": [],
+    "comments": []
+  },
+  "contributors": [
+    {
+      "login": "placeholder",
+      "display_name": "Placeholder — replaced by scripts/snapshot.mjs against the deployed worker",
+      "avatar_url": null,
+      "first_seen_at": "2026-01-05T10:00:00Z",
+      "last_seen_at": "2026-01-05T10:00:00Z",
+      "counts": {
+        "commits": 1,
+        "prs": 0,
+        "reviews": 0,
+        "comments": { "issue": 0, "review": 0, "commit": 0, "all": 0 }
+      },
+      "weekly": [
+        { "week": "2026-W02", "commits": 1, "prs": 0, "reviews": 0, "comments": 0 }
+      ]
+    }
+  ]
+}

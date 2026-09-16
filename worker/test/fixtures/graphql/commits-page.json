@@ -1,0 +1,62 @@
+{
+  "data": {
+    "repository": {
+      "ref": {
+        "target": {
+          "history": {
+            "pageInfo": {
+              "hasNextPage": false,
+              "endCursor": "commit-cursor-1"
+            },
+            "nodes": [
+              {
+                "oid": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa1",
+                "committedDate": "2026-01-05T10:00:00Z",
+                "messageHeadline": "feat: add entropy sampler",
+                "additions": 120,
+                "deletions": 8,
+                "author": {
+                  "name": "Alice A",
+                  "email": "alice@example.com",
+                  "date": "2026-01-05T10:00:00Z",
+                  "user": {
+                    "login": "alice",
+                    "databaseId": 1001,
+                    "avatarUrl": "https://avatars.example.com/alice.png"
+                  }
+                }
+              },
+              {
+                "oid": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa2",
+                "committedDate": "2026-01-06T11:00:00Z",
+                "messageHeadline": "fix: clamp jitter",
+                "additions": 4,
+                "deletions": 4,
+                "author": {
+                  "name": "Bob B",
+                  "email": "2002+bob@users.noreply.github.com",
+                  "date": "2026-01-06T11:00:00Z",
+                  "user": null
+                }
+              },
+              {
+                "oid": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa3",
+                "committedDate": "2026-01-07T12:00:00Z",
+                "messageHeadline": "docs: readme pass",
+                "additions": 30,
+                "deletions": 1,
+                "author": {
+                  "name": "Carol",
+                  "email": "carol@example.com",
+                  "date": "2026-01-07T12:00:00Z",
+                  "user": null
+                }
+              }
+            ]
+          }
+        }
+      }
+    },
+    "rateLimit": { "remaining": 4900, "resetAt": "2026-01-15T00:00:00Z" }
+  }
+}

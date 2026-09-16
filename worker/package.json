@@ -1,0 +1,21 @@
+{
+  "name": "oogatron-worker",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "types": "wrangler types",
+    "typecheck": "npm run types && tsc --noEmit",
+    "lint": "prettier --check .",
+    "format": "prettier --write .",
+    "test": "vitest run",
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy"
+  },
+  "devDependencies": {
+    "@cloudflare/vitest-pool-workers": "^0.8",
+    "prettier": "^3",
+    "typescript": "^5",
+    "vitest": "~3.2",
+    "wrangler": "^4"
+  }
+}
