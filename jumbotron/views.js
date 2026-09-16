@@ -12,23 +12,28 @@
 
 import { displayLabel } from "./data.js";
 
-// Named palette tokens, in one place. Phase 4 swaps these values for the
-// ones extracted from oogaboogaland's src/ — keep the keys stable.
+// Named palette tokens, in one place — values extracted from oogaboogaland's
+// src/ (Phase 4) so the jumbotron reads as native to the island. Sources in
+// oogaboogaland: style.css :root tokens (the HUD deliberately reuses in-world
+// material colors), hub-models.js WOOD/PLANK/screen constants, qr.js darks,
+// gl-renderer.js matrix green, race-hud.js gold.
 export const DEFAULT_PALETTE = {
-  screenBg: "#0d1117",
-  grid: "#161d27",
-  text: "#e6edf3",
-  dim: "#8b98a5",
-  accent: "#ffd23f",
-  commits: "#57d364",
-  prs: "#58a6ff",
-  reviews: "#bc8cff",
-  comments: "#ff9f45",
-  danger: "#ff5c4d",
-  bezel: "#4a4f5a",
-  bezelLight: "#6a7080",
-  bezelDark: "#2e323b",
-  standDark: "#23262e",
+  screenBg: "#0a0c0a", // qr.js dark — near-black with a green cast
+  grid: "#131912", // scanline tint over screenBg
+  text: "#f3efe4", // --paper, the cave-sign pixel-text color
+  dim: "#a6a6a2", // --muted
+  accent: "#d8892b", // --accent (also the legendary tier color)
+  commits: "#46ff70", // matrix green — the in-world screen glow
+  prs: "#3fd1c5", // lab console screen teal
+  reviews: "#6f9fca", // screen blue / rare tier
+  comments: "#f5c542", // race-HUD player gold
+  danger: "#e5533d", // --danger
+  bezel: "#8a6236", // WOOD
+  bezelLight: "#a9773f", // PLANK
+  bezelDark: "#5c4425", // WOOD_DK
+  screenBezel: "#1d2326", // wall-screen bezel (hub-models SCREEN)
+  standDark: "#4a3319", // wood end-grain / edge
+  nail: "#3a2a18", // nails & iron
 };
 
 // Logical board resolution (multiplied by options.pixelDensity).
@@ -197,13 +202,26 @@ export function identiconGrid(login) {
   return grid;
 }
 
-/** Picks two identicon colors deterministically from the palette series. */
-export function identiconColors(login, palette) {
-  const series = [palette.commits, palette.prs, palette.reviews, palette.comments, palette.accent];
+// oogaboogaland's LifeHash implementation (bc-lifehash) derives all identicon
+// colors from this fixed 7-stop spectrum; picking our pair from the same
+// stops keeps contributor identicons color-consistent with the island's.
+const LIFEHASH_SPECTRUM = [
+  "#00a8de",
+  "#293c82",
+  "#d23b82",
+  "#d93f35",
+  "#f4e451",
+  "#009e54",
+];
+
+/** Picks two identicon colors deterministically from the LifeHash spectrum. */
+export function identiconColors(login, _palette) {
   const h = hash32(`${login}#color`);
-  const a = h % series.length;
-  const b = (a + 1 + ((h >>> 8) % (series.length - 1))) % series.length;
-  return [series[a], series[b]];
+  const a = h % LIFEHASH_SPECTRUM.length;
+  const b =
+    (a + 1 + ((h >>> 8) % (LIFEHASH_SPECTRUM.length - 1))) %
+    LIFEHASH_SPECTRUM.length;
+  return [LIFEHASH_SPECTRUM[a], LIFEHASH_SPECTRUM[b]];
 }
 
 /**
@@ -296,7 +314,8 @@ export function renderTotals(ctx, W, H, model, _params, palette) {
       ctx.fillStyle = i === spark.length - 1 ? palette.accent : palette.commits;
       ctx.fillRect(bx + i * bw, baseY - h, bw - 1, h);
     });
-    drawText(ctx, "14 WEEKS", bx, baseY + 3, palette.dim, 1);
+    const label = `${spark.length} WEEKS`;
+    drawText(ctx, label, W - 6 - measureText(label), baseY + 3, palette.dim, 1);
   }
   return false;
 }
@@ -379,7 +398,7 @@ export function renderContributor(ctx, W, H, model, params, palette) {
     });
     ctx.fillStyle = palette.grid;
     ctx.fillRect(bx, baseY, weeks.length * bw, 1);
-    drawText(ctx, "26 WEEKS", bx, baseY + 3, palette.dim, 1);
+    drawText(ctx, `${weeks.length} WEEKS`, bx, baseY + 3, palette.dim, 1);
   }
   return false;
 }

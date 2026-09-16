@@ -64,7 +64,9 @@ void main() {
 }`;
 
 // Per-face brightness for the flat-shaded voxel look (no runtime lighting).
-const FACE_SHADE = { top: 1.18, front: 1.0, side: 0.82, back: 0.65, bottom: 0.55 };
+// Ratios match oogaboogaland's hemispheric + directional model at day
+// (top : lit side : dark side : bottom ≈ 1.0 : 0.75 : 0.5 : 0.33).
+const FACE_SHADE = { top: 1.0, front: 0.75, side: 0.5, back: 0.42, bottom: 0.33 };
 
 /**
  * Appends a shaded axis-aligned box to a vertex array (pos3 + col3 + uv2,
@@ -120,39 +122,52 @@ export function createScreen(gl, options = {}) {
   const aspect = options.aspect ?? 16 / 9;
   const palette = options.palette ?? {};
 
-  const bezelColor = rgb(palette.bezel ?? "#4a4f5a");
-  const bezelDark = rgb(palette.bezelDark ?? "#2e323b");
-  const standColor = rgb(palette.standDark ?? "#23262e");
+  const plank = rgb(palette.bezelLight ?? "#a9773f");
+  const woodDark = rgb(palette.bezelDark ?? "#5c4425");
+  const screenBezel = rgb(palette.screenBezel ?? "#1d2326");
+  const standColor = rgb(palette.standDark ?? "#4a3319");
+  const nailColor = rgb(palette.nail ?? "#3a2a18");
 
   // Screen face is aspect x 1 world units, centered at the origin.
   const sw = aspect, sh = 1;
-  const border = 0.09;
-  const depth = 0.12;
+  const border = 0.1;
+  const depth = 0.14;
 
-  // --- geometry ---------------------------------------------------------
+  // --- geometry: a plank cabinet framed like oogaboogaland's wood crate --
+  // (frame members ~1/9 of the panel span, standing proud of the face; dark
+  // screen bezel matching the lab wall-screens; wood post legs)
   /** @type {number[]} */
   const verts = [];
-  // main cabinet
-  pushBox(verts, 0, 0, 0, sw / 2 + border, sh / 2 + border, depth / 2, bezelColor);
-  // chunky voxel "rivets" on the bezel corners
-  const rx = sw / 2 + border / 2, ry = sh / 2 + border / 2;
-  for (const [px, py] of [[-rx, ry], [rx, ry], [-rx, -ry], [rx, -ry]]) {
-    pushBox(verts, px, py, depth / 2, border / 3, border / 3, 0.015, bezelDark);
+  const outerW = sw + 2 * border;
+  const outerH = sh + 2 * border;
+  // main cabinet slab
+  pushBox(verts, 0, 0, 0, outerW / 2, outerH / 2, depth / 2, plank);
+  // dark-wood frame rails on the face perimeter, 0.03 proud
+  const t = outerH / 9;
+  const zr = depth / 2 - 0.02;
+  pushBox(verts, 0, outerH / 2 - t / 2, zr, outerW / 2, t / 2, 0.05, woodDark);
+  pushBox(verts, 0, -(outerH / 2 - t / 2), zr, outerW / 2, t / 2, 0.05, woodDark);
+  pushBox(verts, outerW / 2 - t / 2, 0, zr, t / 2, outerH / 2, 0.05, woodDark);
+  pushBox(verts, -(outerW / 2 - t / 2), 0, zr, t / 2, outerH / 2, 0.05, woodDark);
+  // corner nails
+  const nx = outerW / 2 - t / 2, ny = outerH / 2 - t / 2;
+  for (const [px, py] of [[-nx, ny], [nx, ny], [-nx, -ny], [nx, -ny]]) {
+    pushBox(verts, px, py, depth / 2 + 0.032, 0.035, 0.035, 0.014, nailColor);
   }
-  // recessed screen backing (visible as the dark inset frame)
-  pushBox(verts, 0, 0, depth / 2 - 0.005, sw / 2 + 0.01, sh / 2 + 0.01, 0.012, bezelDark);
-  // stand: two legs + feet
+  // dark screen bezel (the lab wall-screen inset), just proud of the slab
+  pushBox(verts, 0, 0, depth / 2 + 0.005, sw / 2 + 0.025, sh / 2 + 0.025, 0.018, screenBezel);
+  // stand: two wood posts + end-grain feet
   const legX = sw / 2 - 0.18;
   const legH = 0.55;
-  const bottom = -(sh / 2 + border);
+  const bottom = -outerH / 2;
   for (const sx of [-legX, legX]) {
-    pushBox(verts, sx, bottom - legH / 2, 0, 0.055, legH / 2, 0.055, standColor);
-    pushBox(verts, sx, bottom - legH - 0.03, 0, 0.14, 0.03, 0.14, standColor);
+    pushBox(verts, sx, bottom - legH / 2, 0, 0.06, legH / 2, 0.06, woodDark);
+    pushBox(verts, sx, bottom - legH - 0.03, 0, 0.15, 0.03, 0.15, standColor);
   }
   const bezelVertexCount = verts.length / 8;
 
   // screen quad (textured), v flipped so canvas row 0 lands at the top
-  const zq = depth / 2 + 0.012;
+  const zq = depth / 2 + 0.034;
   const qx = sw / 2, qy = sh / 2;
   // prettier-ignore
   const quad = [
@@ -207,7 +222,7 @@ export function createScreen(gl, options = {}) {
   gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
   // 1x1 placeholder until the first upload
   gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 1, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE,
-    new Uint8Array([13, 17, 23, 255]));
+    new Uint8Array([10, 12, 10, 255]));
 
   const model = mat4TranslateScale(position, scale);
 
