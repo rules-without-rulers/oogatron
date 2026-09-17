@@ -218,6 +218,36 @@ check.
   and opens a commit/PR when the data changed. The network use lives entirely
   in CI; the shipped page remains network-free, CSP untouched.
 
+## Field notes (from the working integration in the rules-without-rulers fork)
+
+This plan has now been executed once, in
+[rules-without-rulers/oogaboogaland](https://github.com/rules-without-rulers/oogaboogaland).
+Lessons that save time on the next pass:
+
+- **Face colors are 0–255**, not 0–1: `models.js` `hexToRgb` returns byte
+  values and `gl-renderer.js` normalizes at upload. Screen quads built with
+  0–1 colors render as near-black ghosts.
+- **The gate prop occupies bearing 0** at (0, −28) on the rim crest — the
+  exact center-north spot. The board stands on the crest just west of it at
+  (−7, −27, ground 6.25), `ry = atan2(-x, -z)` to face the meadow center,
+  scale 2.6.
+- **Legibility sets the scale.** At meadow-center distance (~47 units) a
+  192×108 board needs scale ≈ 2.6 before the scale-2 digits match the
+  cave-sign glyph pixel size (~0.06 world units). Smaller boards read as a
+  black rectangle.
+- **Skip the scanline tint when meshing** (it shimmers at distance) and set
+  `castShadow = false` on the screen geometry so a thousand tiny quads stay
+  out of the shadow pass. Pair every screen-geometry swap with
+  `renderer.releaseGeometry(old)`.
+- **The board sits above the default camera framing**; suite checks should
+  `pilot.navigate` up to it before projecting/picking, like the camera tests
+  do.
+- **Roster names are mostly GitHub handles but not always** (e.g. `bc1gui`
+  is a display name in the stats); `showContributor` matches login first,
+  then display name, and ignores unknowns.
+- Expose the jumbotron API through the hub debug object **and** director.js's
+  `__ooga` key list, or the suite can't reach it.
+
 ## Order of attack, summarized
 
 1. oogatron: scheduled snapshot-refresh workflow (step 0).
