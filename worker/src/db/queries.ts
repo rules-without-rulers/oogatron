@@ -9,20 +9,24 @@ export interface ResolvedEvent {
 }
 
 // Multi-row upserts chunked to stay well under D1's ~100 bound-parameter
-// limit per statement (5 params per row).
+// limit per statement (6 params per row).
 const EVENT_CHUNK = 10;
 
 export function eventUpsertStatements(
   db: D1Database,
+  repo: string,
   events: ResolvedEvent[],
 ): D1PreparedStatement[] {
   const statements: D1PreparedStatement[] = [];
   for (let i = 0; i < events.length; i += EVENT_CHUNK) {
     const chunk = events.slice(i, i + EVENT_CHUNK);
     const values = chunk
-      .map(() => "((SELECT id FROM contributors WHERE login = ?), ?, ?, ?, ?)")
+      .map(
+        () => "(?, (SELECT id FROM contributors WHERE login = ?), ?, ?, ?, ?)",
+      )
       .join(", ");
     const params = chunk.flatMap((e) => [
+      repo,
       e.login,
       e.type,
       e.externalId,
@@ -32,9 +36,9 @@ export function eventUpsertStatements(
     statements.push(
       db
         .prepare(
-          `INSERT INTO activity_events (contributor_id, type, external_id, occurred_at, payload)
+          `INSERT INTO activity_events (repo, contributor_id, type, external_id, occurred_at, payload)
            VALUES ${values}
-           ON CONFLICT(external_id) DO UPDATE SET
+           ON CONFLICT(repo, external_id) DO UPDATE SET
              contributor_id = excluded.contributor_id,
              occurred_at    = excluded.occurred_at,
              payload        = excluded.payload`,
@@ -47,26 +51,34 @@ export function eventUpsertStatements(
 
 export function syncStateUpsert(
   db: D1Database,
+  repo: string,
   source: string,
   cursor: unknown,
 ): D1PreparedStatement {
   return db
     .prepare(
-      `INSERT INTO sync_state (source, cursor, updated_at) VALUES (?, ?, ?)
-       ON CONFLICT(source) DO UPDATE SET cursor = excluded.cursor, updated_at = excluded.updated_at`,
+      `INSERT INTO sync_state (repo, source, cursor, updated_at) VALUES (?, ?, ?, ?)
+       ON CONFLICT(repo, source) DO UPDATE SET cursor = excluded.cursor, updated_at = excluded.updated_at`,
     )
-    .bind(source, JSON.stringify(cursor), new Date().toISOString());
+    .bind(repo, source, JSON.stringify(cursor), new Date().toISOString());
+}
+
+export function stateKey(repo: string, source: string): string {
+  return `${repo}/${source}`;
 }
 
 export async function loadSyncState(
   db: D1Database,
 ): Promise<Map<string, unknown>> {
   const rows = await db
-    .prepare("SELECT source, cursor FROM sync_state")
-    .all<{ source: string; cursor: string | null }>();
+    .prepare("SELECT repo, source, cursor FROM sync_state")
+    .all<{ repo: string; source: string; cursor: string | null }>();
   const map = new Map<string, unknown>();
   for (const r of rows.results) {
-    map.set(r.source, r.cursor === null ? null : JSON.parse(r.cursor));
+    map.set(
+      stateKey(r.repo, r.source),
+      r.cursor === null ? null : JSON.parse(r.cursor),
+    );
   }
   return map;
 }

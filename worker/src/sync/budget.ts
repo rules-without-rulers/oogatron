@@ -1,11 +1,13 @@
 // Meters subrequests within one invocation. On the Workers free plan every
 // outbound fetch, D1 call, and KV op counts toward a 50-subrequest limit; the
 // default max leaves headroom for rollup recompute, bot reconciliation, cache
-// generation bump, and sync_runs bookkeeping after the page walks stop.
+// generation bump, and sync_runs bookkeeping after the page walks stop. The
+// multi-repo loop added a roster read and a rotation-pointer write per run,
+// so the max sits two lower than it originally did.
 export class Budget {
   private used = 0;
 
-  constructor(private readonly max = 42) {}
+  constructor(private readonly max = 40) {}
 
   spend(n = 1): void {
     this.used += n;

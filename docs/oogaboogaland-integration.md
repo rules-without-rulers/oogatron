@@ -1,5 +1,19 @@
 # Integrating the Jumbotron into Ooga Booga Land
 
+> **Status (2026-09): executed, then superseded in part.** This walkthrough
+> describes the original schema_version 1 integration and was carried out.
+> Since then the system moved to **schema_version 2**: org-wide multi-repo
+> stats (no comments, no contributor/ticker views; org totals → per-repo
+> boards → commit/PR/review leaderboards), the site's CSP was opened
+> (`connect-src https:`) so the page **does** poll the deployed worker's
+> `/v1/stats` every minute for live updates and contribution fireworks, and
+> the scheduled snapshot refresh lives in **oogaboogaland**
+> (`.github/workflows/refresh-jumbotron.yml`, repo variable
+> `OOGATRON_STATS_URL`) — the `snapshot.yml` workflow described in Step 0
+> was never built here. The baked `jumbotron-data.js` remains as the initial
+> paint. Steps below are kept for the mechanics that still apply (geometry,
+> fonts, build wiring).
+
 A step-by-step walkthrough for mounting the oogatron jumbotron on the inner
 cliff wall of the island — high on the wall, facing the meadow, stadium-style
 (the spot circled in the placement reference: the north wall band above the

@@ -1,7 +1,7 @@
-import { OWNER, REPO, BRANCH, COMMIT_OVERLAP_DAYS } from "../config";
+import { COMMIT_OVERLAP_DAYS, OWNER } from "../config";
 import { githubGraphQL } from "./github";
 import { maxIso, persistPage, type SyncContext } from "./context";
-import type { ParsedEvent, PageInfo } from "./types";
+import type { ParsedEvent, PageInfo, RepoRef } from "./types";
 
 export type CommitsState =
   | { phase: "backfill"; cursor: string | null; maxSeen: string | null }
@@ -87,6 +87,7 @@ export function parseCommitsPage(data: Record<string, unknown>): {
 
 export async function syncCommits(
   ctx: SyncContext,
+  repo: RepoRef,
   state: CommitsState | null,
 ): Promise<boolean> {
   let s: CommitsState = state ?? {
@@ -99,8 +100,8 @@ export async function syncCommits(
     while (ctx.budget.canAfford(3)) {
       const { data } = await githubGraphQL(ctx.env, ctx.budget, QUERY, {
         owner: OWNER,
-        name: REPO,
-        branch: BRANCH,
+        name: repo.name,
+        branch: repo.defaultBranch,
         cursor: s.cursor,
         since: null,
       });
@@ -108,7 +109,7 @@ export async function syncCommits(
       const newMax = maxIso(s.maxSeen, maxSeen);
       if (pageInfo.hasNextPage) {
         s = { phase: "backfill", cursor: pageInfo.endCursor, maxSeen: newMax };
-        await persistPage(ctx, "commits", events, s);
+        await persistPage(ctx, repo.name, "commits", events, s);
       } else {
         // Backfill complete: promote to incremental. The watermark is the max
         // committedDate observed during the walk (not "now"), so nothing
@@ -117,7 +118,7 @@ export async function syncCommits(
           phase: "incremental",
           since: newMax ?? new Date(0).toISOString(),
         };
-        await persistPage(ctx, "commits", events, s);
+        await persistPage(ctx, repo.name, "commits", events, s);
         return true;
       }
     }
@@ -134,14 +135,14 @@ export async function syncCommits(
   while (ctx.budget.canAfford(3)) {
     const { data } = await githubGraphQL(ctx.env, ctx.budget, QUERY, {
       owner: OWNER,
-      name: REPO,
-      branch: BRANCH,
+      name: repo.name,
+      branch: repo.defaultBranch,
       cursor,
       since: sinceParam,
     });
     const { events, pageInfo, maxSeen } = parseCommitsPage(data);
     watermark = maxIso(watermark, maxSeen)!;
-    await persistPage(ctx, "commits", events, {
+    await persistPage(ctx, repo.name, "commits", events, {
       phase: "incremental",
       since: watermark,
     });

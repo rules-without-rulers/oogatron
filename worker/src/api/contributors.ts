@@ -2,14 +2,7 @@ import { botFilter } from "../db/queries";
 import { addToCounts, assembleStats, weeklyFrom, type Counts } from "./stats";
 import { error, json } from "./respond";
 
-const EVENT_TYPES = new Set([
-  "commit",
-  "pr",
-  "review",
-  "comment_issue",
-  "comment_review",
-  "comment_commit",
-]);
+const EVENT_TYPES = new Set(["commit", "pr", "review"]);
 
 export async function handleContributors(
   env: Env,
@@ -82,12 +75,7 @@ export async function handleContributor(
     .bind(...params)
     .all<{ type: string; occurred_at: string }>();
 
-  const counts: Counts = {
-    commits: 0,
-    prs: 0,
-    reviews: 0,
-    comments: { issue: 0, review: 0, commit: 0, all: 0 },
-  };
+  const counts: Counts = { commits: 0, prs: 0, reviews: 0 };
   const dayCounts = new Map<string, Map<string, number>>();
   for (const e of events.results) {
     addToCounts(counts, e.type, 1);

@@ -26,7 +26,6 @@ export const DEFAULT_PALETTE = {
   commits: "#46ff70", // matrix green — the in-world screen glow
   prs: "#3fd1c5", // lab console screen teal
   reviews: "#6f9fca", // screen blue / rare tier
-  comments: "#f5c542", // race-HUD player gold
   danger: "#e5533d", // --danger
   bezel: "#8a6236", // WOOD
   bezelLight: "#a9773f", // PLANK
@@ -84,7 +83,7 @@ const FONT = {
   9: [0b01110, 0b10001, 0b10001, 0b01111, 0b00001, 0b00010, 0b01100],
   " ": [0, 0, 0, 0, 0, 0, 0],
   "-": [0, 0, 0, 0b01110, 0, 0, 0],
-  "_": [0, 0, 0, 0, 0, 0, 0b11111],
+  _: [0, 0, 0, 0, 0, 0, 0b11111],
   ".": [0, 0, 0, 0, 0, 0b00110, 0b00110],
   ",": [0, 0, 0, 0, 0, 0b00100, 0b01000],
   ":": [0, 0b00110, 0b00110, 0, 0b00110, 0b00110, 0],
@@ -104,7 +103,9 @@ const FONT = {
   ">": [0b10000, 0b01000, 0b00100, 0b00010, 0b00100, 0b01000, 0b10000],
   "<": [0b00001, 0b00010, 0b00100, 0b01000, 0b00100, 0b00010, 0b00001],
 };
-const FALLBACK_GLYPH = [0b11111, 0b10001, 0b10001, 0b10001, 0b10001, 0b10001, 0b11111];
+const FALLBACK_GLYPH = [
+  0b11111, 0b10001, 0b10001, 0b10001, 0b10001, 0b10001, 0b11111,
+];
 
 export const GLYPH_W = 5;
 export const GLYPH_H = 7;
@@ -154,95 +155,11 @@ export function drawText(ctx, text, x, y, color, scale = 1) {
 /** Truncates text to fit maxWidth pixels at scale, adding no ellipsis (LED style). */
 export function fitText(text, maxWidth, scale = 1) {
   const perChar = (GLYPH_W + TRACKING) * scale;
-  const maxChars = Math.max(0, Math.floor((maxWidth + TRACKING * scale) / perChar));
+  const maxChars = Math.max(
+    0,
+    Math.floor((maxWidth + TRACKING * scale) / perChar),
+  );
   return text.length <= maxChars ? text : text.slice(0, maxChars);
-}
-
-// ---------------------------------------------------------------------------
-// Deterministic LifeHash-style identicon: 8x8 horizontally mirrored grid.
-// ---------------------------------------------------------------------------
-
-/** FNV-1a 32-bit. @param {string} s */
-export function hash32(s) {
-  let h = 0x811c9dc5;
-  for (let i = 0; i < s.length; i++) {
-    h ^= s.charCodeAt(i);
-    h = Math.imul(h, 0x01000193);
-  }
-  return h >>> 0;
-}
-
-/**
- * Deterministic 8x8 identicon grid for a login. Cell values: 0 = off,
- * 1 = primary color, 2 = secondary color. Mirrored across the vertical axis.
- * @param {string} login
- * @returns {number[][]}
- */
-export function identiconGrid(login) {
-  let state = hash32(login) || 1;
-  const next = () => {
-    // mulberry32
-    state = (state + 0x6d2b79f5) >>> 0;
-    let t = state;
-    t = Math.imul(t ^ (t >>> 15), t | 1);
-    t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
-    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
-  };
-  const grid = [];
-  for (let r = 0; r < 8; r++) {
-    const row = new Array(8).fill(0);
-    for (let c = 0; c < 4; c++) {
-      const v = next();
-      const cell = v < 0.42 ? 0 : v < 0.78 ? 1 : 2;
-      row[c] = cell;
-      row[7 - c] = cell;
-    }
-    grid.push(row);
-  }
-  return grid;
-}
-
-// oogaboogaland's LifeHash implementation (bc-lifehash) derives all identicon
-// colors from this fixed 7-stop spectrum; picking our pair from the same
-// stops keeps contributor identicons color-consistent with the island's.
-const LIFEHASH_SPECTRUM = [
-  "#00a8de",
-  "#293c82",
-  "#d23b82",
-  "#d93f35",
-  "#f4e451",
-  "#009e54",
-];
-
-/** Picks two identicon colors deterministically from the LifeHash spectrum. */
-export function identiconColors(login, _palette) {
-  const h = hash32(`${login}#color`);
-  const a = h % LIFEHASH_SPECTRUM.length;
-  const b =
-    (a + 1 + ((h >>> 8) % (LIFEHASH_SPECTRUM.length - 1))) %
-    LIFEHASH_SPECTRUM.length;
-  return [LIFEHASH_SPECTRUM[a], LIFEHASH_SPECTRUM[b]];
-}
-
-/**
- * @param {CanvasRenderingContext2D} ctx
- * @param {string} login
- * @param {number} x @param {number} y @param {number} cell cell size in px
- * @param {typeof DEFAULT_PALETTE} palette
- */
-export function drawIdenticon(ctx, login, x, y, cell, palette) {
-  const grid = identiconGrid(login);
-  const [c1, c2] = identiconColors(login, palette);
-  ctx.fillStyle = palette.grid;
-  ctx.fillRect(x - 1, y - 1, 8 * cell + 2, 8 * cell + 2);
-  for (let r = 0; r < 8; r++) {
-    for (let c = 0; c < 8; c++) {
-      const v = grid[r][c];
-      if (v === 0) continue;
-      ctx.fillStyle = v === 1 ? c1 : c2;
-      ctx.fillRect(x + c * cell, y + r * cell, cell, cell);
-    }
-  }
 }
 
 // ---------------------------------------------------------------------------
@@ -258,7 +175,10 @@ function clearBoard(ctx, W, H, palette) {
 }
 
 function header(ctx, W, palette, title, right) {
-  drawText(ctx, title, 3, 3, palette.accent, 1);
+  // Repo names can outrun the board (25 glyphs > 192px with a week label),
+  // so every header title truncates to the space the right label leaves.
+  const roomForTitle = W - 6 - (right ? measureText(right, 1) + 4 : 0);
+  drawText(ctx, fitText(title, roomForTitle, 1), 3, 3, palette.accent, 1);
   if (right) {
     drawText(ctx, right, W - 3 - measureText(right, 1), 3, palette.dim, 1);
   }
@@ -266,7 +186,7 @@ function header(ctx, W, palette, title, right) {
   ctx.fillRect(0, 12, W, 1);
 }
 
-const TYPE_COLOR = { commits: "commits", prs: "prs", reviews: "reviews", comments: "comments" };
+const TYPE_COLOR = { commits: "commits", prs: "prs", reviews: "reviews" };
 
 // ---------------------------------------------------------------------------
 // Views. Each renders the full board; signature:
@@ -276,33 +196,43 @@ const TYPE_COLOR = { commits: "commits", prs: "prs", reviews: "reviews", comment
 /** @type {Record<string, Function>} */
 export const VIEWS = {
   totals: renderTotals,
+  repo: renderRepo,
   leaderboard: renderLeaderboard,
-  contributor: renderContributor,
-  ticker: renderTicker,
 };
 
-export function renderTotals(ctx, W, H, model, _params, palette) {
+/**
+ * Shared body for the org-wide and per-repo totals boards: headline counts on
+ * the left, a weekly activity sparkline on the right.
+ */
+function renderTotalsBoard(
+  ctx,
+  W,
+  H,
+  palette,
+  title,
+  right,
+  totals,
+  weeklyTotals,
+) {
   clearBoard(ctx, W, H, palette);
-  header(ctx, W, palette, "ENTROPYLAB TOTALS", model.latestWeek ?? "");
+  header(ctx, W, palette, title, right);
 
-  const t = model.totals;
   const rows = [
-    ["CONTRIBUTORS", t.contributors, palette.accent],
-    ["COMMITS", t.commits, palette.commits],
-    ["PRS", t.prs, palette.prs],
-    ["REVIEWS", t.reviews, palette.reviews],
-    ["COMMENTS", t.comments.all, palette.comments],
+    ["CONTRIBUTORS", totals.contributors, palette.accent],
+    ["COMMITS", totals.commits, palette.commits],
+    ["PRS", totals.prs, palette.prs],
+    ["REVIEWS", totals.reviews, palette.reviews],
   ];
-  let y = 17;
+  let y = 20;
   for (const [label, value, color] of rows) {
     drawText(ctx, String(label), 6, y + 3, palette.dim, 1);
     const v = String(value);
     drawText(ctx, v, W - 66 - measureText(v, 2), y, color, 2);
-    y += 15;
+    y += 18;
   }
 
-  // repo-wide weekly activity sparkline, right side
-  const spark = model.weeklyTotals.slice(-14);
+  // weekly activity sparkline, right side
+  const spark = weeklyTotals.slice(-14);
   if (spark.length > 0) {
     const maxV = Math.max(...spark.map((w) => w.total), 1);
     const bw = 4;
@@ -320,6 +250,42 @@ export function renderTotals(ctx, W, H, model, _params, palette) {
   return false;
 }
 
+/** Org-wide totals — the Live Wire board. */
+export function renderTotals(ctx, W, H, model, _params, palette) {
+  const title = `${(model.org || "OOGABOOGAX").toUpperCase()} TOTALS`;
+  return renderTotalsBoard(
+    ctx,
+    W,
+    H,
+    palette,
+    title,
+    model.latestWeek ?? "",
+    model.totals,
+    model.weeklyTotals,
+  );
+}
+
+/** One repo's totals; params: { name }. */
+export function renderRepo(ctx, W, H, model, params, palette) {
+  const repo =
+    model.repos.find((r) => r.name === params?.name) ?? model.repos[0];
+  if (!repo) {
+    clearBoard(ctx, W, H, palette);
+    drawText(ctx, "NO REPOS", 58, 48, palette.dim, 1);
+    return false;
+  }
+  return renderTotalsBoard(
+    ctx,
+    W,
+    H,
+    palette,
+    repo.name.toUpperCase(),
+    model.latestWeek ?? "",
+    repo.totals,
+    repo.weeklyTotals,
+  );
+}
+
 export function renderLeaderboard(ctx, W, H, model, params, palette) {
   const type = params?.type ?? "commits";
   const board = model.leaderboards[type] ?? [];
@@ -333,7 +299,14 @@ export function renderLeaderboard(ctx, W, H, model, params, palette) {
   top.forEach((e, i) => {
     const c = model.byLogin.get(e.login);
     const label = fitText((c ? displayLabel(c) : e.login).toUpperCase(), 66, 1);
-    drawText(ctx, String(i + 1), 4, y, i === 0 ? palette.accent : palette.dim, 1);
+    drawText(
+      ctx,
+      String(i + 1),
+      4,
+      y,
+      i === 0 ? palette.accent : palette.dim,
+      1,
+    );
     drawText(ctx, label, 14, y, palette.text, 1);
     const barX = 84;
     const barMax = W - barX - 30;
@@ -345,91 +318,4 @@ export function renderLeaderboard(ctx, W, H, model, params, palette) {
     y += 13;
   });
   return false;
-}
-
-export function renderContributor(ctx, W, H, model, params, palette) {
-  const login = params?.login;
-  const c = (login && model.byLogin.get(login)) || model.contributors[0];
-  clearBoard(ctx, W, H, palette);
-  if (!c) {
-    drawText(ctx, "NO CONTRIBUTORS", 40, 48, palette.dim, 1);
-    return false;
-  }
-  header(ctx, W, palette, "CONTRIBUTOR", model.latestWeek ?? "");
-
-  drawIdenticon(ctx, c.login, 6, 18, 4, palette);
-  const name = fitText(displayLabel(c).toUpperCase(), W - 50, 1);
-  drawText(ctx, name, 44, 20, palette.text, 1);
-  if (c.display_name && !c.login.startsWith("email:")) {
-    drawText(ctx, fitText(c.display_name.toUpperCase(), W - 50, 1), 44, 30, palette.dim, 1);
-  }
-
-  const counts = [
-    ["CM", c.counts.commits, palette.commits],
-    ["PR", c.counts.prs, palette.prs],
-    ["RV", c.counts.reviews, palette.reviews],
-    ["MSG", c.counts.comments.all, palette.comments],
-  ];
-  let x = 44;
-  for (const [label, value, color] of counts) {
-    drawText(ctx, String(label), x, 42, palette.dim, 1);
-    drawText(ctx, String(value), x, 50, color, 1);
-    x += 36;
-  }
-
-  // weekly sparkline (all activity), last 26 weeks
-  const weeks = c.weekly.slice(-26);
-  if (weeks.length > 0) {
-    const maxV = Math.max(
-      ...weeks.map((w) => w.commits + w.prs + w.reviews + w.comments),
-      1,
-    );
-    const bw = 5;
-    const bx = 6;
-    const baseY = H - 12;
-    const maxH = 28;
-    weeks.forEach((w, i) => {
-      const total = w.commits + w.prs + w.reviews + w.comments;
-      const h = Math.max(total > 0 ? 1 : 0, Math.round((total / maxV) * maxH));
-      if (h > 0) {
-        ctx.fillStyle = i === weeks.length - 1 ? palette.accent : palette.prs;
-        ctx.fillRect(bx + i * bw, baseY - h, bw - 1, h);
-      }
-    });
-    ctx.fillStyle = palette.grid;
-    ctx.fillRect(bx, baseY, weeks.length * bw, 1);
-    drawText(ctx, `${weeks.length} WEEKS`, bx, baseY + 3, palette.dim, 1);
-  }
-  return false;
-}
-
-const TICKER_SPEED = 30; // px per second
-
-export function renderTicker(ctx, W, H, model, _params, palette, t) {
-  clearBoard(ctx, W, H, palette);
-  header(ctx, W, palette, "LIVE WIRE", model.latestWeek ?? "");
-
-  // static digest in the middle
-  const digest = [
-    ["COMMITS", model.totals.commits, palette.commits],
-    ["PRS", model.totals.prs, palette.prs],
-    ["REVIEWS", model.totals.reviews, palette.reviews],
-    ["COMMENTS", model.totals.comments.all, palette.comments],
-  ];
-  let x = 6;
-  for (const [label, value, color] of digest) {
-    drawText(ctx, String(label), x, 26, palette.dim, 1);
-    drawText(ctx, String(value), x, 36, color, 2);
-    x += 46;
-  }
-
-  // scrolling marquee
-  const text = model.tickerText || "NO DATA";
-  const tw = measureText(text, 1) + W;
-  const offset = ((t ?? 0) * TICKER_SPEED) % tw;
-  const y = H - 20;
-  ctx.fillStyle = palette.grid;
-  ctx.fillRect(0, y - 4, W, 15);
-  drawText(ctx, text, W - offset, y, palette.accent, 1);
-  return true; // animates every frame
 }

@@ -49,9 +49,7 @@
   <button data-view="leaderboard:commits">2 commits</button>
   <button data-view="leaderboard:prs">3 prs</button>
   <button data-view="leaderboard:reviews">4 reviews</button>
-  <button data-view="leaderboard:comments">5 comments</button>
-  <button data-view="ticker">6 ticker</button>
-  <select id="who"><option value="">contributor…</option></select>
+  <select id="which-repo"><option value="">repo…</option></select>
   <button id="next">n next</button>
   <button id="rot" class="active">r rotate</button>
 </div>
@@ -136,7 +134,7 @@
   const sceneCanvas = document.getElementById("scene");
 
   function wireUi(target) {
-    const whoEl = document.getElementById("who");
+    const repoEl = document.getElementById("which-repo");
     for (const btn of document.querySelectorAll("#hud button[data-view]")) {
       btn.addEventListener("click", () => {
         const [name, type] = btn.dataset.view.split(":");
@@ -144,9 +142,9 @@
         setRotating(false);
       });
     }
-    whoEl.addEventListener("change", () => {
-      if (whoEl.value) {
-        target.setView("contributor", { login: whoEl.value });
+    repoEl.addEventListener("change", () => {
+      if (repoEl.value) {
+        target.setView("repo", { name: repoEl.value });
         setRotating(false);
       }
     });
@@ -163,7 +161,7 @@
 
     window.addEventListener("keydown", (e) => {
       const views = ["totals", "leaderboard:commits", "leaderboard:prs",
-        "leaderboard:reviews", "leaderboard:comments", "ticker"];
+        "leaderboard:reviews"];
       const idx = Number(e.key) - 1;
       if (idx >= 0 && idx < views.length) {
         const [name, type] = views[idx].split(":");
@@ -174,13 +172,13 @@
     });
   }
 
-  function fillContributorPicker(json) {
-    const whoEl = document.getElementById("who");
-    for (const c of json.contributors ?? []) {
+  function fillRepoPicker(json) {
+    const repoEl = document.getElementById("which-repo");
+    for (const r of json.repos ?? []) {
       const opt = document.createElement("option");
-      opt.value = c.login;
-      opt.textContent = c.login;
-      whoEl.appendChild(opt);
+      opt.value = r.name;
+      opt.textContent = r.name;
+      repoEl.appendChild(opt);
     }
   }
 
@@ -258,7 +256,7 @@
       statusEl.innerHTML = `oogatron harness — <b>webgl2</b> — data: ${url} — drag to orbit, wheel to zoom`;
     }
 
-    fillContributorPicker(json);
+    fillRepoPicker(json);
   } catch (e) {
     fail(e instanceof Error ? e.message : String(e));
   }

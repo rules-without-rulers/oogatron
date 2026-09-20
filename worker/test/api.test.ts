@@ -2,8 +2,7 @@ import { env, fetchMock, SELF } from "cloudflare:test";
 import { beforeAll, describe, expect, it } from "vitest";
 import commitsPage from "./fixtures/graphql/commits-page.json";
 import prsPage from "./fixtures/graphql/prs-page.json";
-import issuesPage from "./fixtures/graphql/issues-page.json";
-import commitComments from "./fixtures/graphql/commit-comments.json";
+import orgRepos from "./fixtures/graphql/org-repos.json";
 
 const BASE = "https://oogatron.test";
 
@@ -16,28 +15,26 @@ async function seed(): Promise<void> {
        (3, 5005, 'robo[bot]', NULL, NULL, 1, '2026-01-05T10:00:00Z', '2026-01-05T10:00:00Z')`,
     ),
     env.DB.prepare(
-      `INSERT INTO activity_events (contributor_id, type, external_id, occurred_at) VALUES
-       (1, 'commit', 'e1', '2026-01-05T10:00:00Z'),
-       (1, 'commit', 'e2', '2026-01-12T15:00:00Z'),
-       (1, 'pr',     'e3', '2026-01-06T10:00:00Z'),
-       (1, 'comment_issue', 'e4', '2026-01-13T08:00:00Z'),
-       (2, 'review', 'e5', '2026-01-09T10:00:00Z'),
-       (3, 'commit', 'e6', '2026-01-05T10:00:00Z')`,
+      `INSERT INTO activity_events (repo, contributor_id, type, external_id, occurred_at) VALUES
+       ('entropylab', 1, 'commit', 'e1', '2026-01-05T10:00:00Z'),
+       ('entropylab', 1, 'commit', 'e2', '2026-01-12T15:00:00Z'),
+       ('bedrock',    1, 'pr',     'e3', '2026-01-06T10:00:00Z'),
+       ('entropylab', 2, 'review', 'e5', '2026-01-09T10:00:00Z'),
+       ('entropylab', 3, 'commit', 'e6', '2026-01-05T10:00:00Z')`,
     ),
     env.DB.prepare(
-      `INSERT INTO daily_rollups (day, contributor_id, type, count) VALUES
-       ('2026-01-05', 1, 'commit', 1),
-       ('2026-01-12', 1, 'commit', 1),
-       ('2026-01-06', 1, 'pr', 1),
-       ('2026-01-13', 1, 'comment_issue', 1),
-       ('2026-01-09', 2, 'review', 1),
-       ('2026-01-05', 3, 'commit', 1)`,
+      `INSERT INTO daily_rollups (repo, day, contributor_id, type, count) VALUES
+       ('entropylab', '2026-01-05', 1, 'commit', 1),
+       ('entropylab', '2026-01-12', 1, 'commit', 1),
+       ('bedrock',    '2026-01-06', 1, 'pr', 1),
+       ('entropylab', '2026-01-09', 2, 'review', 1),
+       ('entropylab', '2026-01-05', 3, 'commit', 1)`,
     ),
   ]);
 }
 
 describe("/v1/stats", () => {
-  it("assembles totals, leaderboards, and contributors; excludes bots by default", async () => {
+  it("assembles org totals, leaderboards, repos, and contributors; excludes bots by default", async () => {
     await seed();
     const res = await SELF.fetch(`${BASE}/v1/stats`);
     expect(res.status).toBe(200);
@@ -45,24 +42,61 @@ describe("/v1/stats", () => {
     const body = (await res.json()) as any;
 
     expect(body.meta).toMatchObject({
-      repo: "OogaBoogaX/entropylab",
-      schema_version: 1,
+      org: "OogaBoogaX",
+      schema_version: 2,
     });
     expect(body.totals).toEqual({
       contributors: 2,
       commits: 2, // bot commit excluded
       prs: 1,
       reviews: 1,
-      comments: { issue: 1, review: 0, commit: 0, all: 1 },
     });
     expect(body.leaderboards.commits).toEqual([{ login: "alice", count: 2 }]);
+    expect(body.leaderboards.prs).toEqual([{ login: "alice", count: 1 }]);
     expect(body.leaderboards.reviews).toEqual([{ login: "erik", count: 1 }]);
+
+    // Per-repo breakdown, ordered by total activity.
+    expect(body.repos.map((r: any) => r.name)).toEqual([
+      "entropylab",
+      "bedrock",
+    ]);
+    expect(body.repos[0].totals).toEqual({
+      contributors: 2,
+      commits: 2,
+      prs: 0,
+      reviews: 1,
+    });
+    expect(body.repos[0].weekly).toEqual([
+      { week: "2026-W02", commits: 1, prs: 0, reviews: 1 },
+      { week: "2026-W03", commits: 1, prs: 0, reviews: 0 },
+    ]);
+    expect(body.repos[1].totals).toEqual({
+      contributors: 1,
+      commits: 0,
+      prs: 1,
+      reviews: 0,
+    });
+
+    // Org totals equal the sum across repos.
+    const summed = body.repos.reduce(
+      (acc: any, r: any) => ({
+        commits: acc.commits + r.totals.commits,
+        prs: acc.prs + r.totals.prs,
+        reviews: acc.reviews + r.totals.reviews,
+      }),
+      { commits: 0, prs: 0, reviews: 0 },
+    );
+    expect(summed).toEqual({
+      commits: body.totals.commits,
+      prs: body.totals.prs,
+      reviews: body.totals.reviews,
+    });
 
     const logins = body.contributors.map((c: any) => c.login);
     expect(logins).toEqual(["alice", "erik"]); // sorted by total activity
     expect(body.contributors[0].weekly).toEqual([
-      { week: "2026-W02", commits: 1, prs: 1, reviews: 0, comments: 0 },
-      { week: "2026-W03", commits: 1, prs: 0, reviews: 0, comments: 1 },
+      { week: "2026-W02", commits: 1, prs: 1, reviews: 0 },
+      { week: "2026-W03", commits: 1, prs: 0, reviews: 0 },
     ]);
   });
 
@@ -120,6 +154,10 @@ describe("/v1/contributors", () => {
 
     const bad = await SELF.fetch(`${BASE}/v1/contributors/alice?type=nope`);
     expect(bad.status).toBe(400);
+    const legacy = await SELF.fetch(
+      `${BASE}/v1/contributors/alice?type=comment_issue`,
+    );
+    expect(legacy.status).toBe(400); // comments left the contract
   });
 
   it("404s unknown logins and hides bots by default", async () => {
@@ -168,10 +206,9 @@ describe("/admin/backfill", () => {
       .intercept({ path: "/graphql", method: "POST" })
       .reply(200, (opts) => {
         const body = JSON.parse(String(opts.body)) as { query: string };
+        if (body.query.includes("query OrgRepos")) return orgRepos;
         if (body.query.includes("query Commits")) return commitsPage;
         if (body.query.includes("query PRs")) return prsPage;
-        if (body.query.includes("query Issues")) return issuesPage;
-        if (body.query.includes("query CommitComments")) return commitComments;
         throw new Error("unmocked query");
       })
       .persist();
