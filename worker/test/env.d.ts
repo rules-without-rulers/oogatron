@@ -9,16 +9,20 @@ declare module "cloudflare:test" {
 // test suite exercises.
 declare module "*/jumbotron/data.js" {
   export function parseStats(json: unknown): {
-    repo: string;
+    org: string;
     totals: Record<string, unknown> & { contributors: number };
     leaderboards: Record<string, Array<{ login: string; count: number }>>;
+    repos: Array<{
+      name: string;
+      totals: Record<string, number> & { contributors: number };
+      weekly: Array<{ week: string }>;
+      weeklyTotals: Array<{ week: string; total: number }>;
+    }>;
     contributors: Array<{ login: string; weekly: Array<{ week: string }> }>;
     byLogin: Map<string, unknown>;
     latestWeek: string | null;
     weeklyTotals: Array<{ week: string; total: number }>;
-    tickerText: string;
   };
-  export function deriveTicker(model: unknown): string;
   export function displayLabel(c: {
     login: string;
     display_name?: string | null;
@@ -44,12 +48,6 @@ declare module "*/jumbotron/views.js" {
     maxWidth: number,
     scale?: number,
   ): string;
-  export function hash32(s: string): number;
-  export function identiconGrid(login: string): number[][];
-  export function identiconColors(
-    login: string,
-    palette: unknown,
-  ): [string, string];
   export const VIEWS: Record<
     string,
     (

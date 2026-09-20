@@ -1,19 +1,15 @@
 import { STALE_RUN_MINUTES } from "../config";
-import { loadSyncState } from "../db/queries";
+import { loadSyncState, stateKey, syncStateUpsert } from "../db/queries";
 import { recomputeRollups } from "../db/rollups";
 import { bumpCacheGeneration } from "../api/cache";
 import { Budget } from "./budget";
 import { reconcileBots } from "./bots";
+import { activeRepos } from "./repos";
 import { syncCommits, type CommitsState } from "./commits";
 import { syncPrs, type PrsState } from "./prs";
-import {
-  syncCommitComments,
-  syncIssueComments,
-  type CommitCommentsState,
-  type IssuesState,
-} from "./comments";
 import { ContributorResolver } from "./identity";
 import { RateLimited } from "./github";
+import type { RepoRef } from "./types";
 import type { SyncContext } from "./context";
 
 export interface SyncResult {
@@ -24,12 +20,28 @@ export interface SyncResult {
   budgetSpent: number;
 }
 
-function isBackfilling(state: Map<string, unknown>): boolean {
-  const sources = ["commits", "prs", "issue_comments"];
-  return sources.some((s) => {
-    const v = state.get(s) as { phase?: string } | null | undefined;
-    return !v || v.phase === "backfill";
-  });
+// The fairness pointer lives in sync_state under a repo name no real repo can
+// have; it records which repo led the last run's rotation.
+const ROTATION_REPO = "*";
+const ROTATION_SOURCE = "rotation";
+
+function isBackfilling(state: Map<string, unknown>, repos: RepoRef[]): boolean {
+  return repos.some((repo) =>
+    ["commits", "prs"].some((s) => {
+      const v = state.get(stateKey(repo.name, s)) as
+        { phase?: string } | null | undefined;
+      return !v || v.phase === "backfill";
+    }),
+  );
+}
+
+// Round-robin: start after the repo that led last time, so one repo mid-
+// backfill eating the whole budget delays the others by at most one cron
+// tick, never forever.
+function rotated(repos: RepoRef[], lastLead: string | null): RepoRef[] {
+  const i = lastLead ? repos.findIndex((r) => r.name === lastLead) : -1;
+  if (i < 0) return repos;
+  return [...repos.slice(i + 1), ...repos.slice(0, i + 1)];
 }
 
 export async function runSync(
@@ -66,16 +78,6 @@ export async function runSync(
     };
   }
 
-  const state = await loadSyncState(db);
-  const kind = isBackfilling(state) ? "backfill" : "incremental";
-  const run = await db
-    .prepare(
-      "INSERT INTO sync_runs (kind, started_at, status) VALUES (?, ?, 'running') RETURNING id",
-    )
-    .bind(kind, now)
-    .first<{ id: number }>();
-  const runId = run!.id;
-
   const ctx: SyncContext = {
     env,
     db,
@@ -84,26 +86,50 @@ export async function runSync(
     eventsWritten: 0,
   };
 
+  const repos = await activeRepos(ctx);
+  const state = await loadSyncState(db);
+  const kind = isBackfilling(state, repos) ? "backfill" : "incremental";
+  const run = await db
+    .prepare(
+      "INSERT INTO sync_runs (kind, started_at, status) VALUES (?, ?, 'running') RETURNING id",
+    )
+    .bind(kind, now)
+    .first<{ id: number }>();
+  const runId = run!.id;
+
+  const lastLead = (state.get(stateKey(ROTATION_REPO, ROTATION_SOURCE)) ??
+    null) as string | null;
+  const order = rotated(repos, lastLead);
+  if (order.length > 0 && order[0].name !== lastLead) {
+    await syncStateUpsert(
+      db,
+      ROTATION_REPO,
+      ROTATION_SOURCE,
+      order[0].name,
+    ).run();
+  }
+
   let done = false;
   try {
-    const commitsDone = await syncCommits(
-      ctx,
-      state.get("commits") as CommitsState | null,
-    );
-    const prsDone =
-      commitsDone && (await syncPrs(ctx, state.get("prs") as PrsState | null));
-    const issuesDone =
-      prsDone &&
-      (await syncIssueComments(
+    done = true;
+    for (const repo of order) {
+      const commitsDone = await syncCommits(
         ctx,
-        state.get("issue_comments") as IssuesState | null,
-      ));
-    done =
-      issuesDone &&
-      (await syncCommitComments(
-        ctx,
-        state.get("commit_comments") as CommitCommentsState | null,
-      ));
+        repo,
+        state.get(stateKey(repo.name, "commits")) as CommitsState | null,
+      );
+      const prsDone =
+        commitsDone &&
+        (await syncPrs(
+          ctx,
+          repo,
+          state.get(stateKey(repo.name, "prs")) as PrsState | null,
+        ));
+      if (!prsDone) {
+        done = false;
+        break;
+      }
+    }
 
     if (ctx.eventsWritten > 0) {
       await recomputeRollups(db);
@@ -120,6 +146,7 @@ export async function runSync(
         JSON.stringify({
           trigger,
           partial: !done,
+          repos: repos.length,
           eventsWritten: ctx.eventsWritten,
           budgetSpent: ctx.budget.spent,
         }),

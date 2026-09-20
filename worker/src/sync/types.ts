@@ -1,10 +1,12 @@
-export type EventType =
-  | "commit"
-  | "pr"
-  | "review"
-  | "comment_issue"
-  | "comment_review"
-  | "comment_commit";
+export type EventType = "commit" | "pr" | "review";
+
+// One discovered org repo, as the sync loop consumes it. defaultBranch comes
+// from discovery — hardcoding a branch would silently sync nothing for repos
+// whose default differs.
+export interface RepoRef {
+  name: string;
+  defaultBranch: string;
+}
 
 // A reference to whoever performed an event, as GraphQL reports it. Identity
 // resolution (identity.ts) turns this into a contributors row.

@@ -6,7 +6,6 @@ import {
   drawText,
   fitText,
   glyphOf,
-  identiconGrid,
   measureText,
 } from "../../jumbotron/views.js";
 import fixture from "../../harness/fixtures/stats.json";
@@ -34,27 +33,40 @@ function recordingCtx() {
 describe("data.js parseStats", () => {
   it("parses the real fixture into the view model", () => {
     const model = parseStats(fixture);
-    expect(model.repo).toBe("OogaBoogaX/entropylab");
+    expect(model.org).toBe("OogaBoogaX");
     expect(model.totals.contributors).toBeGreaterThan(0);
+    expect(model.repos.length).toBeGreaterThan(0);
+    expect(model.repos[0].name).toBe("entropylab");
+    expect(model.repos[0].totals.commits).toBeGreaterThan(0);
     expect(model.contributors.length).toBeGreaterThan(0);
     expect(model.byLogin.has(model.contributors[0].login)).toBe(true);
     expect(model.latestWeek).toMatch(/^\d{4}-W\d{2}$/);
     expect(model.weeklyTotals.length).toBeGreaterThan(0);
-    expect(model.tickerText).toContain("CONTRIBUTORS");
   });
 
   it("rejects unknown schema versions but tolerates extra fields", () => {
     expect(() =>
       parseStats({
-        meta: { schema_version: 2 },
+        meta: { schema_version: 1 },
         totals: {},
         leaderboards: {},
+        repos: [],
+        contributors: [],
+      }),
+    ).toThrow(/schema_version/);
+    expect(() =>
+      parseStats({
+        meta: { schema_version: 99 },
+        totals: {},
+        leaderboards: {},
+        repos: [],
         contributors: [],
       }),
     ).toThrow(/schema_version/);
     const extended = JSON.parse(JSON.stringify(fixture));
     extended.meta.someFutureField = true;
     extended.contributors[0].badge = "gold";
+    extended.repos[0].mascot = "gorilla";
     expect(() => parseStats(extended)).not.toThrow();
   });
 });
@@ -73,29 +85,15 @@ describe("views.js bitmap font", () => {
   });
 });
 
-describe("views.js identicon", () => {
-  it("is deterministic, mirrored, and varies by login", () => {
-    const a1 = identiconGrid("portlandhodl");
-    const a2 = identiconGrid("portlandhodl");
-    const b = identiconGrid("w-s-bitcoin");
-    expect(a1).toEqual(a2);
-    expect(a1).not.toEqual(b);
-    for (const row of a1) {
-      expect(row.length).toBe(8);
-      for (let c = 0; c < 4; c++) expect(row[c]).toBe(row[7 - c]);
-    }
-  });
-});
-
 describe("view renderers against the real fixture", () => {
   const model = parseStats(fixture);
   const cases: Array<[string, unknown]> = [
     ["totals", undefined],
+    ["repo", { name: model.repos[0].name }],
+    ["repo", { name: "no-such-repo-falls-back" }],
     ["leaderboard", { type: "commits" }],
-    ["leaderboard", { type: "comments" }],
-    ["contributor", { login: model.contributors[0].login }],
-    ["contributor", { login: "no-such-login-falls-back" }],
-    ["ticker", undefined],
+    ["leaderboard", { type: "prs" }],
+    ["leaderboard", { type: "reviews" }],
   ];
 
   it.each(cases)(
@@ -119,29 +117,21 @@ describe("view renderers against the real fixture", () => {
     },
   );
 
-  it("only the ticker requests continuous animation", () => {
+  it("removed views (ticker, contributor) are gone from the registry", () => {
+    expect(Object.keys(VIEWS).sort()).toEqual([
+      "leaderboard",
+      "repo",
+      "totals",
+    ]);
+  });
+
+  it("no view requests continuous animation", () => {
     const ctx = recordingCtx();
-    expect(
-      VIEWS.totals(
-        ctx as never,
-        192,
-        108,
-        model,
-        undefined,
-        DEFAULT_PALETTE,
-        0,
-      ),
-    ).toBe(false);
-    expect(
-      VIEWS.ticker(
-        ctx as never,
-        192,
-        108,
-        model,
-        undefined,
-        DEFAULT_PALETTE,
-        0,
-      ),
-    ).toBe(true);
+    for (const [name, render] of Object.entries(VIEWS)) {
+      expect(
+        render(ctx as never, 192, 108, model, undefined, DEFAULT_PALETTE, 0),
+        name,
+      ).toBe(false);
+    }
   });
 });

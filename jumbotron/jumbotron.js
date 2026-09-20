@@ -51,20 +51,21 @@ export function createJumbotronDisplay(options = {}) {
   let dirty = true;
   let animated = false;
 
-  /** Rotation cycle, rebuilt per model: boards, top contributor cards, ticker. */
+  // Repo boards are capped so the full cycle stays under ~90s if the org grows.
+  const MAX_REPO_BOARDS = 6;
+
+  /** Rotation cycle, rebuilt per model: org totals, per-repo totals, leaderboards. */
   function cycle() {
     /** @type {ViewRef[]} */
-    const c = [
-      { name: "totals" },
+    const c = [{ name: "totals" }];
+    for (const repo of model?.repos.slice(0, MAX_REPO_BOARDS) ?? []) {
+      c.push({ name: "repo", params: { name: repo.name } });
+    }
+    c.push(
       { name: "leaderboard", params: { type: "commits" } },
       { name: "leaderboard", params: { type: "prs" } },
       { name: "leaderboard", params: { type: "reviews" } },
-      { name: "leaderboard", params: { type: "comments" } },
-    ];
-    for (const entry of model?.contributors.slice(0, 3) ?? []) {
-      c.push({ name: "contributor", params: { login: entry.login } });
-    }
-    c.push({ name: "ticker" });
+    );
     return c;
   }
 
@@ -77,7 +78,9 @@ export function createJumbotronDisplay(options = {}) {
       return false;
     }
     const render = VIEWS[view.name] ?? VIEWS.totals;
-    return Boolean(render(ctx, BOARD_W, BOARD_H, model, view.params, palette, t));
+    return Boolean(
+      render(ctx, BOARD_W, BOARD_H, model, view.params, palette, t),
+    );
   }
 
   return {
@@ -91,8 +94,8 @@ export function createJumbotronDisplay(options = {}) {
     },
 
     /**
-     * @param {string} name 'totals' | 'leaderboard' | 'contributor' | 'ticker'
-     * @param {Record<string, unknown>} [params] e.g. {type} or {login}
+     * @param {string} name 'totals' | 'repo' | 'leaderboard'
+     * @param {Record<string, unknown>} [params] e.g. {type} or {name}
      */
     setView(name, params) {
       if (!(name in VIEWS)) throw new Error(`unknown view: ${name}`);

@@ -6,10 +6,10 @@ export async function recomputeRollups(db: D1Database): Promise<void> {
   await db.batch([
     db.prepare("DELETE FROM daily_rollups"),
     db.prepare(
-      `INSERT INTO daily_rollups (day, contributor_id, type, count)
-       SELECT substr(occurred_at, 1, 10), contributor_id, type, COUNT(*)
+      `INSERT INTO daily_rollups (repo, day, contributor_id, type, count)
+       SELECT repo, substr(occurred_at, 1, 10), contributor_id, type, COUNT(*)
        FROM activity_events
-       GROUP BY 1, 2, 3`,
+       GROUP BY 1, 2, 3, 4`,
     ),
   ]);
 }

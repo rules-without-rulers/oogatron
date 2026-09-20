@@ -1,8 +1,13 @@
 export const OWNER = "OogaBoogaX";
-export const REPO = "entropylab";
-export const BRANCH = "rock";
-export const REPO_FULL = `${OWNER}/${REPO}`;
-export const SCHEMA_VERSION = 1;
+export const SCHEMA_VERSION = 2;
+
+// Repos are discovered from the org (public, non-fork, non-archived); list
+// short names here to keep specific repos off the jumbotron anyway.
+export const EXCLUDED_REPOS: string[] = [];
+
+// Org repo discovery re-runs when the repos table is older than this; between
+// refreshes each sync run reads the cached table only.
+export const REPO_DISCOVERY_TTL_MINUTES = 60;
 
 // Incremental commit sync re-reads this many days before the watermark:
 // rebases and cherry-picks can introduce commits whose committedDate predates

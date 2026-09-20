@@ -12,6 +12,7 @@ interface ContributorRow {
 }
 
 interface RollupRow {
+  repo: string;
   contributor_id: number;
   day: string;
   type: string;
@@ -22,26 +23,16 @@ export interface Counts {
   commits: number;
   prs: number;
   reviews: number;
-  comments: { issue: number; review: number; commit: number; all: number };
 }
 
 function emptyCounts(): Counts {
-  return {
-    commits: 0,
-    prs: 0,
-    reviews: 0,
-    comments: { issue: 0, review: 0, commit: 0, all: 0 },
-  };
+  return { commits: 0, prs: 0, reviews: 0 };
 }
 
 export function addToCounts(counts: Counts, type: string, n: number): void {
   if (type === "commit") counts.commits += n;
   else if (type === "pr") counts.prs += n;
   else if (type === "review") counts.reviews += n;
-  else if (type === "comment_issue") counts.comments.issue += n;
-  else if (type === "comment_review") counts.comments.review += n;
-  else if (type === "comment_commit") counts.comments.commit += n;
-  if (type.startsWith("comment_")) counts.comments.all += n;
 }
 
 interface WeeklyBucket {
@@ -49,7 +40,6 @@ interface WeeklyBucket {
   commits: number;
   prs: number;
   reviews: number;
-  comments: number;
 }
 
 export function weeklyFrom(
@@ -60,24 +50,24 @@ export function weeklyFrom(
     const week = isoWeek(r.day);
     let b = byWeek.get(week);
     if (!b) {
-      b = { week, commits: 0, prs: 0, reviews: 0, comments: 0 };
+      b = { week, commits: 0, prs: 0, reviews: 0 };
       byWeek.set(week, b);
     }
     if (r.type === "commit") b.commits += r.count;
     else if (r.type === "pr") b.prs += r.count;
     else if (r.type === "review") b.reviews += r.count;
-    else if (r.type.startsWith("comment_")) b.comments += r.count;
   }
   return [...byWeek.values()].sort((a, b) => (a.week < b.week ? -1 : 1));
 }
 
 function totalOf(c: Counts): number {
-  return c.commits + c.prs + c.reviews + c.comments.all;
+  return c.commits + c.prs + c.reviews;
 }
 
 // Assembles the /v1/stats payload (also the snapshot format) from rollups +
-// contributors — never from raw events. The contributors array is always
-// complete, which is what lets snapshot mode filter per-user client-side.
+// contributors — never from raw events. Top-level totals/leaderboards/
+// contributors are org-wide; the repos array carries each repo's totals and
+// weekly series for the per-repo jumbotron boards.
 export async function assembleStats(
   env: Env,
   url: URL,
@@ -90,7 +80,7 @@ export async function assembleStats(
        ORDER BY c.login`,
     ),
     env.DB.prepare(
-      `SELECT r.contributor_id, r.day, r.type, r.count
+      `SELECT r.repo, r.contributor_id, r.day, r.type, r.count
        FROM daily_rollups r JOIN contributors c ON c.id = r.contributor_id
        WHERE 1=1${botFilter(url)}`,
     ),
@@ -103,6 +93,10 @@ export async function assembleStats(
     number,
     { counts: Counts; rollups: RollupRow[] }
   >();
+  const perRepo = new Map<
+    string,
+    { counts: Counts; contributorIds: Set<number>; rollups: RollupRow[] }
+  >();
   for (const c of contributors) {
     perContributor.set(c.id, { counts: emptyCounts(), rollups: [] });
   }
@@ -113,6 +107,14 @@ export async function assembleStats(
       addToCounts(pc.counts, r.type, r.count);
       pc.rollups.push(r);
     }
+    let pr = perRepo.get(r.repo);
+    if (!pr) {
+      pr = { counts: emptyCounts(), contributorIds: new Set(), rollups: [] };
+      perRepo.set(r.repo, pr);
+    }
+    addToCounts(pr.counts, r.type, r.count);
+    pr.contributorIds.add(r.contributor_id);
+    pr.rollups.push(r);
   }
 
   // "Total contributors" = union of humans with >=1 event of any type (or
@@ -132,6 +134,17 @@ export async function assembleStats(
       }))
       .filter((e) => e.count > 0)
       .sort((a, b) => b.count - a.count || (a.login < b.login ? -1 : 1));
+
+  const repoObjs = [...perRepo.entries()]
+    .map(([name, pr]) => ({
+      name,
+      totals: { contributors: pr.contributorIds.size, ...pr.counts },
+      weekly: weeklyFrom(pr.rollups),
+    }))
+    .sort(
+      (a, b) =>
+        totalOf(b.totals) - totalOf(a.totals) || (a.name < b.name ? -1 : 1),
+    );
 
   const contributorObjs = contributors
     .map((c) => {
@@ -161,8 +174,8 @@ export async function assembleStats(
       commits: leaderboardFor((c) => c.commits),
       prs: leaderboardFor((c) => c.prs),
       reviews: leaderboardFor((c) => c.reviews),
-      comments: leaderboardFor((c) => c.comments.all),
     },
+    repos: repoObjs,
     contributors: contributorObjs,
   };
 }

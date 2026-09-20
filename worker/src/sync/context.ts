@@ -17,6 +17,7 @@ export interface SyncContext {
 // persist a cursor without its page's events. Costs 1 subrequest.
 export async function persistPage(
   ctx: SyncContext,
+  repo: string,
   source: string,
   events: ParsedEvent[],
   newState: unknown,
@@ -38,8 +39,8 @@ export async function persistPage(
       payload: e.payload,
     });
   }
-  statements.push(...eventUpsertStatements(ctx.db, resolved));
-  statements.push(syncStateUpsert(ctx.db, source, newState));
+  statements.push(...eventUpsertStatements(ctx.db, repo, resolved));
+  statements.push(syncStateUpsert(ctx.db, repo, source, newState));
   ctx.budget.spend();
   await ctx.db.batch(statements);
   ctx.eventsWritten += events.length;

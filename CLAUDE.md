@@ -38,10 +38,10 @@ oogatron/
 │       ├── index.ts           # fetch router + scheduled() handler
 │       ├── sync/              # GitHub GraphQL ingestion
 │       │   ├── github.ts      # GraphQL client, pagination, rate-limit handling
-│       │   ├── commits.ts     # commit history walker (branch: rock)
-│       │   ├── prs.ts         # PRs + their reviews + review comments
-│       │   ├── comments.ts    # issue comments + commit comments
-│       │   └── run.ts         # orchestrator: incremental sync + full backfill
+│       │   ├── repos.ts       # org repo discovery (public, non-fork, non-archived)
+│       │   ├── commits.ts     # commit history walker (each repo's default branch)
+│       │   ├── prs.ts         # PRs + their reviews
+│       │   └── run.ts         # orchestrator: repo round-robin, incremental sync + backfill
 │       ├── db/                # typed query helpers over D1
 │       └── api/               # /v1/* handlers (JSON, CORS-enabled, KV-cached)
 ├── jumbotron/                 # Piece 2 — plain-JS voxel display module (no deps)
@@ -83,22 +83,25 @@ CREATE TABLE contributors (
 
 CREATE TABLE activity_events (
   id             INTEGER PRIMARY KEY,
+  repo           TEXT NOT NULL DEFAULT 'entropylab',  -- short name; owner is the org constant
   contributor_id INTEGER NOT NULL REFERENCES contributors(id),
-  type           TEXT NOT NULL CHECK (type IN
-                   ('commit','pr','review','comment_issue','comment_review','comment_commit')),
-  external_id    TEXT NOT NULL UNIQUE,    -- commit SHA / GraphQL node id → idempotent upserts
+  type           TEXT NOT NULL CHECK (type IN ('commit','pr','review')),
+  external_id    TEXT NOT NULL,           -- commit SHA / GraphQL node id
   occurred_at    TEXT NOT NULL,           -- ISO 8601
-  payload        TEXT                     -- JSON: title, PR number, additions/deletions, state…
+  payload        TEXT,                    -- JSON: title, PR number, additions/deletions, state…
+  UNIQUE (repo, external_id)              -- idempotent upserts, repo-scoped
 );
 CREATE INDEX idx_events_contributor_time ON activity_events(contributor_id, occurred_at);
 CREATE INDEX idx_events_type_time        ON activity_events(type, occurred_at);
+CREATE INDEX idx_events_repo_time        ON activity_events(repo, occurred_at);
 
 CREATE TABLE daily_rollups (              -- recomputed after each sync; serves fast queries
+  repo           TEXT NOT NULL DEFAULT 'entropylab',
   day            TEXT NOT NULL,           -- YYYY-MM-DD
   contributor_id INTEGER NOT NULL REFERENCES contributors(id),
   type           TEXT NOT NULL,
   count          INTEGER NOT NULL,
-  PRIMARY KEY (day, contributor_id, type)
+  PRIMARY KEY (repo, day, contributor_id, type)
 );
 
 CREATE TABLE sync_runs (
@@ -110,32 +113,46 @@ CREATE TABLE sync_runs (
   detail      TEXT                        -- error text, cursors, counts
 );
 
-CREATE TABLE sync_state (                 -- per-source incremental cursors
-  source     TEXT PRIMARY KEY,            -- 'commits' | 'prs' | 'issue_comments' | 'commit_comments'
+CREATE TABLE sync_state (                 -- per-repo per-source incremental cursors
+  repo       TEXT NOT NULL,               -- repo short name; '*' holds the rotation pointer
+  source     TEXT NOT NULL,               -- 'commits' | 'prs' | 'rotation'
   cursor     TEXT,                        -- last seen timestamp or GraphQL cursor
-  updated_at TEXT NOT NULL
+  updated_at TEXT NOT NULL,
+  PRIMARY KEY (repo, source)
+);
+
+CREATE TABLE repos (                      -- discovered org repos (discovery cache)
+  name            TEXT PRIMARY KEY,
+  default_branch  TEXT NOT NULL,
+  is_active       INTEGER NOT NULL DEFAULT 1,  -- 0 = archived/excluded/vanished/empty
+  discovered_at   TEXT NOT NULL,
+  last_checked_at TEXT NOT NULL
 );
 ```
 
 ### Ingestion (cron)
 
-- **Schedule:** cron trigger every 10 minutes (`crons = ["*/10 * * * *"]`). Each
-  run does an incremental sync from the stored cursors; a run that finds an empty
-  database performs the full backfill instead (also invocable manually via an
-  authenticated `POST /admin/backfill`).
-- **Source of truth:** GitHub **GraphQL API** against `OogaBoogaX/entropylab`,
-  authenticated with a fine-grained PAT held as a Worker secret (`GITHUB_TOKEN`).
-  Both repos are public; read-only public-repo scope suffices.
-- **What to collect** (target branch for commits: `rock`):
+- **Schedule:** cron trigger every minute (`crons = ["* * * * *"]`). Each run
+  does an incremental sync from the stored cursors; repos without cursors start
+  in backfill (also drivable manually via an authenticated
+  `POST /admin/backfill`).
+- **Repos:** discovered from the **OogaBoogaX org** (public, non-fork,
+  non-archived; `EXCLUDED_REPOS` in config opts specific repos out). Discovery
+  is TTL-gated (~hourly, `REPO_DISCOVERY_TTL_MINUTES`) and cached in the
+  `repos` table with each repo's default branch. Sync loops repos in
+  round-robin order resumed from the `'*'/'rotation'` pointer, so one repo's
+  backfill can't starve the others.
+- **Source of truth:** GitHub **GraphQL API**, authenticated with a
+  fine-grained PAT held as a Worker secret (`GITHUB_TOKEN`). All tracked repos
+  are public; read-only public-repo scope suffices.
+- **What to collect** (commits walk each repo's default branch):
   - `commit` — branch history. Attribute by the commit author's linked GitHub
     user; when a commit has no linked user, match by author email against known
     contributors, else create an unmatched contributor row keyed by a hash of the
     email (never store the raw email in `login`).
   - `pr` — all pull requests, any state, by author.
   - `review` — review submissions on every PR, by reviewer.
-  - `comment_issue` / `comment_review` / `comment_commit` — the three distinct
-    GitHub comment surfaces, stored as separate types so the display can show
-    them split or summed.
+  - Comments are deliberately **not** tracked (dropped in schema_version 2).
 - **Bots and CI:** entropylab's CI commits build artifacts back to `rock`.
   Maintain a small config list of bot logins/patterns (e.g. `*[bot]`, the CI
   committer); mark them `is_bot = 1`. Bots are stored but **excluded from all
@@ -147,29 +164,33 @@ CREATE TABLE sync_state (                 -- per-source incremental cursors
 ### HTTP API (versioned, frozen contract)
 
 All responses JSON, CORS `*` for GET, cached in KV (60 s TTL) keyed by full URL.
-`meta` appears on every response: `{ "generated_at": ISO8601, "repo": "OogaBoogaX/entropylab", "schema_version": 1 }`.
+`meta` appears on every response: `{ "generated_at": ISO8601, "org": "OogaBoogaX", "schema_version": 2 }`.
 
-- `GET /v1/stats` — the everything payload (this is also the snapshot format):
+- `GET /v1/stats` — the everything payload (this is also the snapshot format).
+  Top-level `totals`/`leaderboards`/`contributors` are **org-wide**; `repos`
+  carries the per-repo breakdown, ordered by total activity:
 
 ```json
 {
-  "meta": { "generated_at": "…", "repo": "OogaBoogaX/entropylab", "schema_version": 1 },
-  "totals": {
-    "contributors": 0,
-    "commits": 0, "prs": 0, "reviews": 0,
-    "comments": { "issue": 0, "review": 0, "commit": 0, "all": 0 }
-  },
+  "meta": { "generated_at": "…", "org": "OogaBoogaX", "schema_version": 2 },
+  "totals": { "contributors": 0, "commits": 0, "prs": 0, "reviews": 0 },
   "leaderboards": {
     "commits":  [ { "login": "…", "count": 0 } ],
-    "prs":      [], "reviews": [], "comments": []
+    "prs":      [], "reviews": []
   },
+  "repos": [
+    {
+      "name": "entropylab",
+      "totals": { "contributors": 0, "commits": 0, "prs": 0, "reviews": 0 },
+      "weekly": [ { "week": "2026-W01", "commits": 0, "prs": 0, "reviews": 0 } ]
+    }
+  ],
   "contributors": [
     {
       "login": "…", "display_name": "…", "avatar_url": "…",
       "first_seen_at": "…", "last_seen_at": "…",
-      "counts": { "commits": 0, "prs": 0, "reviews": 0,
-                  "comments": { "issue": 0, "review": 0, "commit": 0, "all": 0 } },
-      "weekly": [ { "week": "2026-W01", "commits": 0, "prs": 0, "reviews": 0, "comments": 0 } ]
+      "counts": { "commits": 0, "prs": 0, "reviews": 0 },
+      "weekly": [ { "week": "2026-W01", "commits": 0, "prs": 0, "reviews": 0 } ]
     }
   ]
 }
@@ -182,11 +203,13 @@ All responses JSON, CORS `*` for GET, cached in KV (60 s TTL) keyed by full URL.
 - `GET /v1/health` — last sync run status + row counts.
 - `POST /admin/backfill` — bearer-token protected (`ADMIN_TOKEN` secret).
 
-**Contract rules:** additive changes only within `schema_version: 1`; the
-`contributors` array is always complete (entropylab has few enough humans that
+**Contract rules:** additive changes only within `schema_version: 2`; the
+`contributors` array is always complete (the org has few enough humans that
 this stays small), which is what lets snapshot mode filter per-user entirely
 client-side. "Total contributors" means the union of humans with ≥1 event of
-any type — not GitHub's commit-only contributor count.
+any type — not GitHub's commit-only contributor count. Contributor identity is
+org-global; per-contributor-per-repo splits are deliberately not in the
+contract.
 
 ---
 
@@ -205,16 +228,16 @@ export function createJumbotron(gl, options)  // gl: WebGL2RenderingContext
 // returns:
 //   update(statsJson)         // validated via data.js; re-renders current view
 //   draw(viewProjMatrix, timeSeconds)
-//   setView(name, params)     // 'totals' | 'leaderboard' (type) | 'contributor' (login) | 'ticker'
+//   setView(name, params)     // 'totals' | 'repo' (name) | 'leaderboard' (type)
 //   nextView() / autoRotate(seconds)
 //   dispose()
 ```
 
-**Views (initial set):** repo totals board; per-type leaderboards; a
-single-contributor card (name, LifeHash-style deterministic identicon, four
-counts, weekly sparkline) — this is the per-user requirement, and in
-oogaboogaland it later becomes "poke an Ooga → the jumbotron shows their stats";
-a scrolling ticker of recent events. Auto-rotation cycles views on a timer.
+**Views:** org totals board (the Live Wire); one totals board per repo (capped
+at 6 most-active); leaderboards for commits, PRs, and reviews. Auto-rotation
+cycles org totals → repo boards → leaderboards on a timer. (The contributor
+card and scrolling ticker were removed along with comment tracking in
+schema_version 2.)
 
 **Style:** match oogaboogaland's vector-block look — flat-shaded voxel blocks,
 blocky bezel, chunky pixel-grid typography on the canvas (render text large and
@@ -267,8 +290,8 @@ Default `*.workers.dev` URL is fine; custom domain later if desired.
 ## Testing
 
 - **Worker:** unit-test sync parsing against recorded GraphQL fixture responses
-  (commit-email matching, bot filtering, comment-type separation, idempotent
-  re-runs); test rollup math and API handlers against a local D1
+  (org repo discovery, commit-email matching, bot filtering, round-robin repo
+  rotation, idempotent re-runs); test rollup math and API handlers against a local D1
   (`wrangler d1 execute --local` / miniflare).
 - **Jumbotron:** golden-image or pixel-sample tests of the canvas renderers from
   fixture JSON; a headless-browser smoke test that the harness boots with a
@@ -300,10 +323,11 @@ Default `*.workers.dev` URL is fine; custom domain later if desired.
 
 ## Out of scope (deliberately)
 
-- Webhooks on entropylab (needs repo admin; cron covers freshness at 10-minute
-  granularity; the router leaves room for a future `POST /webhook`).
+- Webhooks on tracked repos (needs repo admin; the per-minute cron covers
+  freshness; the router leaves room for a future `POST /webhook`).
 - Any React/Next.js UI, any framework in the jumbotron.
-- Tracking additional repos (schema already permits it later — add a `repo`
-  column to events when needed; don't build it now).
+- Comment tracking (dropped in schema_version 2; re-syncing from GitHub could
+  bring it back, but nothing displays it).
+- Per-contributor-per-repo stat splits (contributor identity stays org-global).
 - Private data of any kind. Public contributor handles and public activity only,
   matching oogaboogaland's privacy stance.

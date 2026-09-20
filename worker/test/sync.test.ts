@@ -5,8 +5,12 @@ import { parseCommitsPage } from "../src/sync/commits";
 import { isCountableReview } from "../src/sync/prs";
 import commitsPage from "./fixtures/graphql/commits-page.json";
 import prsPage from "./fixtures/graphql/prs-page.json";
-import issuesPage from "./fixtures/graphql/issues-page.json";
-import commitComments from "./fixtures/graphql/commit-comments.json";
+import orgRepos from "./fixtures/graphql/org-repos.json";
+
+// One dispatcher for the whole file; tests swap the OrgRepos response via
+// this variable (undici keeps persisted interceptors registered across
+// tests, so per-test intercepts on the same path would shadow each other).
+let orgReposResponse: unknown = orgRepos;
 
 function mockGitHub() {
   fetchMock
@@ -14,10 +18,9 @@ function mockGitHub() {
     .intercept({ path: "/graphql", method: "POST" })
     .reply(200, (opts) => {
       const body = JSON.parse(String(opts.body)) as { query: string };
+      if (body.query.includes("query OrgRepos")) return orgReposResponse as any;
       if (body.query.includes("query Commits")) return commitsPage;
       if (body.query.includes("query PRs")) return prsPage;
-      if (body.query.includes("query Issues")) return issuesPage;
-      if (body.query.includes("query CommitComments")) return commitComments;
       throw new Error(`unmocked GraphQL query: ${body.query.slice(0, 80)}`);
     })
     .persist();
@@ -26,36 +29,63 @@ function mockGitHub() {
 beforeAll(() => {
   fetchMock.activate();
   fetchMock.disableNetConnect();
+  mockGitHub();
 });
 afterEach(() => {
   fetchMock.assertNoPendingInterceptors();
 });
 
-async function eventCounts(): Promise<Record<string, number>> {
-  const rows = await env.DB.prepare(
-    "SELECT type, COUNT(*) AS n FROM activity_events GROUP BY type",
-  ).all<{ type: string; n: number }>();
+async function eventCounts(repo?: string): Promise<Record<string, number>> {
+  const rows = repo
+    ? await env.DB.prepare(
+        "SELECT type, COUNT(*) AS n FROM activity_events WHERE repo = ? GROUP BY type",
+      )
+        .bind(repo)
+        .all<{ type: string; n: number }>()
+    : await env.DB.prepare(
+        "SELECT type, COUNT(*) AS n FROM activity_events GROUP BY type",
+      ).all<{ type: string; n: number }>();
   return Object.fromEntries(rows.results.map((r) => [r.type, r.n]));
 }
 
+async function syncStateMap(): Promise<Map<string, unknown>> {
+  const rows = await env.DB.prepare(
+    "SELECT repo, source, cursor FROM sync_state",
+  ).all<{ repo: string; source: string; cursor: string }>();
+  return new Map(
+    rows.results.map((r) => [`${r.repo}/${r.source}`, JSON.parse(r.cursor)]),
+  );
+}
+
 describe("full sync against recorded GraphQL pages", () => {
-  it("ingests all sources, resolves identities, and is idempotent", async () => {
-    mockGitHub();
+  it("discovers repos, ingests commits+prs, resolves identities, and is idempotent", async () => {
+    orgReposResponse = orgRepos;
 
     const first = await runSync(env, "admin");
     expect(first.skipped).toBe(false);
     expect(first.kind).toBe("backfill");
     expect(first.done).toBe(true);
 
+    // Discovery: archived and empty repos are stored but inactive.
+    const repoRows = await env.DB.prepare(
+      "SELECT name, default_branch, is_active FROM repos ORDER BY name",
+    ).all<{ name: string; default_branch: string; is_active: number }>();
+    expect(repoRows.results).toEqual([
+      { name: "empty-cave", default_branch: "", is_active: 0 },
+      { name: "entropylab", default_branch: "rock", is_active: 1 },
+      { name: "mothballed", default_branch: "main", is_active: 0 },
+    ]);
+
     const counts = await eventCounts();
     expect(counts).toEqual({
       commit: 3,
       pr: 2,
       review: 1, // APPROVED only: PENDING and the empty-body container are skipped
-      comment_review: 1,
-      comment_issue: 4, // PR conversation x2 + issue comments x2
-      comment_commit: 1,
     });
+    const repoScan = await env.DB.prepare(
+      "SELECT DISTINCT repo FROM activity_events",
+    ).all<{ repo: string }>();
+    expect(repoScan.results).toEqual([{ repo: "entropylab" }]);
 
     // Identity resolution.
     const contributors = await env.DB.prepare(
@@ -82,29 +112,24 @@ describe("full sync against recorded GraphQL pages", () => {
       "SELECT COUNT(*) AS n FROM contributors WHERE login LIKE '%@%'",
     ).first<{ n: number }>();
     expect(rawEmailScan!.n).toBe(0);
-    // GraphQL Bot typename flagged:
-    expect(byLogin.get("github-actions")).toMatchObject({ is_bot: 1 });
     // Deleted PR author became ghost:
     expect(byLogin.get("ghost")).toBeDefined();
 
-    // Rollups were recomputed.
+    // Rollups were recomputed, repo-scoped.
     const rollups = await env.DB.prepare(
-      "SELECT SUM(count) AS n FROM daily_rollups",
+      "SELECT SUM(count) AS n FROM daily_rollups WHERE repo = 'entropylab'",
     ).first<{ n: number }>();
-    expect(rollups!.n).toBe(12);
+    expect(rollups!.n).toBe(6);
 
-    // Sync state promoted to incremental everywhere.
-    const state = await env.DB.prepare(
-      "SELECT source, cursor FROM sync_state",
-    ).all<{ source: string; cursor: string }>();
-    const bySource = Object.fromEntries(
-      state.results.map((r) => [r.source, JSON.parse(r.cursor)]),
+    // Sync state promoted to incremental, keyed per repo; the rotation
+    // pointer recorded which repo led.
+    const state = await syncStateMap();
+    expect((state.get("entropylab/commits") as any).phase).toBe("incremental");
+    expect((state.get("entropylab/commits") as any).since).toBe(
+      "2026-01-07T12:00:00Z",
     );
-    expect(bySource["commits"].phase).toBe("incremental");
-    expect(bySource["commits"].since).toBe("2026-01-07T12:00:00Z");
-    expect(bySource["prs"].phase).toBe("incremental");
-    expect(bySource["issue_comments"].phase).toBe("incremental");
-    expect(bySource["commit_comments"].cursor).toBe("cc-cursor-1");
+    expect((state.get("entropylab/prs") as any).phase).toBe("incremental");
+    expect(state.get("*/rotation")).toBe("entropylab");
 
     // Second run: incremental, and re-upserting the same pages changes nothing.
     const second = await runSync(env, "admin");
@@ -115,6 +140,46 @@ describe("full sync against recorded GraphQL pages", () => {
       "SELECT COUNT(*) AS n FROM contributors",
     ).first<{ n: number }>();
     expect(contributorCount!.n).toBe(contributors.results.length);
+  });
+
+  it("loops every active repo and rotates the lead between runs", async () => {
+    orgReposResponse = {
+      data: {
+        organization: {
+          repositories: {
+            pageInfo: { hasNextPage: false, endCursor: null },
+            nodes: [
+              {
+                name: "alpha",
+                isArchived: false,
+                defaultBranchRef: { name: "rock" },
+              },
+              {
+                name: "beta",
+                isArchived: false,
+                defaultBranchRef: { name: "main" },
+              },
+            ],
+          },
+        },
+        rateLimit: { remaining: 4999, resetAt: "2026-01-07T13:00:00Z" },
+      },
+    };
+
+    const first = await runSync(env, "admin");
+    expect(first.done).toBe(true);
+
+    // Both repos ingested the recorded pages; uniqueness is repo-scoped, so
+    // the same external ids land once per repo.
+    expect(await eventCounts("alpha")).toEqual({ commit: 3, pr: 2, review: 1 });
+    expect(await eventCounts("beta")).toEqual({ commit: 3, pr: 2, review: 1 });
+
+    // Round-robin: alphabetical order on the first run (no pointer), so
+    // alpha led; the next run starts after it, so beta leads.
+    expect((await syncStateMap()).get("*/rotation")).toBe("alpha");
+    const second = await runSync(env, "admin");
+    expect(second.done).toBe(true);
+    expect((await syncStateMap()).get("*/rotation")).toBe("beta");
   });
 });
 

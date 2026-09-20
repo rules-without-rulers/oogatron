@@ -1,4 +1,4 @@
-import { REPO_FULL, SCHEMA_VERSION } from "../config";
+import { OWNER, SCHEMA_VERSION } from "../config";
 
 // Every JSON response carries the same meta block; generated_at is
 // response-assembly time (a snapshot preserves the moment it was taken —
@@ -10,7 +10,7 @@ export function json(
   const withMeta = {
     meta: {
       generated_at: new Date().toISOString(),
-      repo: REPO_FULL,
+      org: OWNER,
       schema_version: SCHEMA_VERSION,
     },
     ...body,
