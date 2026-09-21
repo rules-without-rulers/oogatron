@@ -1,61 +1,65 @@
 {
   "meta": {
-    "generated_at": "2026-09-16T21:56:00.629Z",
+    "generated_at": "2026-09-21T01:30:28.846Z",
     "org": "OogaBoogaX",
     "schema_version": 3
   },
   "totals": {
-    "contributors": 40,
-    "commits": 837,
-    "prs": 323,
-    "reviews": 40,
-    "comments": 0
+    "contributors": 48,
+    "commits": 1072,
+    "prs": 414,
+    "reviews": 44,
+    "comments": 316
   },
   "leaderboards": {
     "commits": [
       {
         "login": "portlandhodl",
-        "count": 369
+        "count": 389
       },
       {
         "login": "w-s-bitcoin",
-        "count": 203
+        "count": 281
+      },
+      {
+        "login": "MrHodlX",
+        "count": 80
+      },
+      {
+        "login": "timechainb",
+        "count": 61
       },
       {
         "login": "dplusplus1024",
         "count": 44
       },
       {
-        "login": "timechainb",
+        "login": "2140data",
         "count": 42
       },
       {
-        "login": "MrHodlX",
-        "count": 31
-      },
-      {
         "login": "ottoz0r",
-        "count": 24
+        "count": 31
       },
       {
         "login": "pdubl22",
         "count": 23
       },
       {
-        "login": "J25dunn",
+        "login": "itme-brain",
         "count": 13
       },
       {
         "login": "RandyMcMillan",
-        "count": 12
-      },
-      {
-        "login": "itme-brain",
         "count": 11
       },
       {
-        "login": "2140data",
-        "count": 9
+        "login": "claude",
+        "count": 11
+      },
+      {
+        "login": "J25dunn",
+        "count": 10
       },
       {
         "login": "Hero-Gamer",
@@ -70,7 +74,15 @@
         "count": 7
       },
       {
+        "login": "knorrium",
+        "count": 7
+      },
+      {
         "login": "Jdelg718",
+        "count": 5
+      },
+      {
+        "login": "rules-without-rulers",
         "count": 5
       },
       {
@@ -90,7 +102,19 @@
         "count": 3
       },
       {
+        "login": "Holo-Elfstone",
+        "count": 2
+      },
+      {
         "login": "SaniExp",
+        "count": 2
+      },
+      {
+        "login": "codex",
+        "count": 2
+      },
+      {
+        "login": "csuwildcat",
         "count": 2
       },
       {
@@ -98,7 +122,11 @@
         "count": 2
       },
       {
-        "login": "rules-without-rulers",
+        "login": "hotpixelgroup",
+        "count": 2
+      },
+      {
+        "login": "itsneski",
         "count": 2
       },
       {
@@ -110,7 +138,7 @@
         "count": 1
       },
       {
-        "login": "csuwildcat",
+        "login": "YellowBrokeIt",
         "count": 1
       },
       {
@@ -126,7 +154,7 @@
         "count": 1
       },
       {
-        "login": "hotpixelgroup",
+        "login": "email:93964419ae80c511",
         "count": 1
       },
       {
@@ -140,24 +168,28 @@
     ],
     "prs": [
       {
-        "login": "portlandhodl",
-        "count": 78
+        "login": "MrHodlX",
+        "count": 83
       },
       {
-        "login": "MrHodlX",
-        "count": 55
+        "login": "portlandhodl",
+        "count": 81
       },
       {
         "login": "w-s-bitcoin",
-        "count": 32
+        "count": 57
       },
       {
         "login": "timechainb",
-        "count": 21
+        "count": 26
+      },
+      {
+        "login": "2140data",
+        "count": 23
       },
       {
         "login": "ottoz0r",
-        "count": 18
+        "count": 19
       },
       {
         "login": "J25dunn",
@@ -180,11 +212,15 @@
         "count": 11
       },
       {
-        "login": "2140data",
-        "count": 10
+        "login": "rules-without-rulers",
+        "count": 6
       },
       {
         "login": "Jdelg718",
+        "count": 5
+      },
+      {
+        "login": "knorrium",
         "count": 5
       },
       {
@@ -224,7 +260,19 @@
         "count": 2
       },
       {
+        "login": "YellowBrokeIt",
+        "count": 2
+      },
+      {
         "login": "csuwildcat",
+        "count": 2
+      },
+      {
+        "login": "doggyballs",
+        "count": 2
+      },
+      {
+        "login": "itsneski",
         "count": 2
       },
       {
@@ -232,12 +280,16 @@
         "count": 2
       },
       {
-        "login": "rules-without-rulers",
+        "login": "zmeyer44",
         "count": 2
       },
       {
-        "login": "zmeyer44",
-        "count": 2
+        "login": "CypherBoxLLC",
+        "count": 1
+      },
+      {
+        "login": "Holo-Elfstone",
+        "count": 1
       },
       {
         "login": "Korg1970",
@@ -245,10 +297,6 @@
       },
       {
         "login": "Shitnobi",
-        "count": 1
-      },
-      {
-        "login": "doggyballs",
         "count": 1
       },
       {
@@ -267,7 +315,7 @@
     "reviews": [
       {
         "login": "MrHodlX",
-        "count": 21
+        "count": 22
       },
       {
         "login": "J25dunn",
@@ -278,74 +326,182 @@
         "count": 4
       },
       {
+        "login": "w-s-bitcoin",
+        "count": 3
+      },
+      {
         "login": "Hero-Gamer",
         "count": 1
       }
     ],
-    "comments": []
+    "comments": [
+      {
+        "login": "portlandhodl",
+        "count": 84
+      },
+      {
+        "login": "Hero-Gamer",
+        "count": 53
+      },
+      {
+        "login": "w-s-bitcoin",
+        "count": 47
+      },
+      {
+        "login": "MrHodlX",
+        "count": 23
+      },
+      {
+        "login": "RandyMcMillan",
+        "count": 19
+      },
+      {
+        "login": "J25dunn",
+        "count": 18
+      },
+      {
+        "login": "BTCMcBoatface",
+        "count": 14
+      },
+      {
+        "login": "dplusplus1024",
+        "count": 11
+      },
+      {
+        "login": "itme-brain",
+        "count": 9
+      },
+      {
+        "login": "dani69654",
+        "count": 7
+      },
+      {
+        "login": "ottoz0r",
+        "count": 6
+      },
+      {
+        "login": "timechainb",
+        "count": 5
+      },
+      {
+        "login": "hotpixelgroup",
+        "count": 4
+      },
+      {
+        "login": "tmmmemcee",
+        "count": 3
+      },
+      {
+        "login": "HodlDee",
+        "count": 2
+      },
+      {
+        "login": "Jdelg718",
+        "count": 2
+      },
+      {
+        "login": "rules-without-rulers",
+        "count": 2
+      },
+      {
+        "login": "100megasats",
+        "count": 1
+      },
+      {
+        "login": "2140data",
+        "count": 1
+      },
+      {
+        "login": "Bitcoin-Bill",
+        "count": 1
+      },
+      {
+        "login": "csuwildcat",
+        "count": 1
+      },
+      {
+        "login": "doggyballs",
+        "count": 1
+      },
+      {
+        "login": "remcoros",
+        "count": 1
+      },
+      {
+        "login": "unclejim7",
+        "count": 1
+      }
+    ]
   },
   "repos": [
     {
       "name": "entropylab",
       "totals": {
-        "contributors": 40,
-        "commits": 837,
-        "prs": 323,
-        "reviews": 40,
-        "comments": 0
+        "contributors": 44,
+        "commits": 937,
+        "prs": 358,
+        "reviews": 41,
+        "comments": 315
       },
       "weekly": [
         {
           "week": "2026-W35",
-          "commits": 329,
+          "commits": 333,
           "prs": 134,
           "reviews": 2,
-          "comments": 0
+          "comments": 69
         },
         {
           "week": "2026-W36",
-          "commits": 397,
+          "commits": 399,
           "prs": 136,
           "reviews": 16,
-          "comments": 0
+          "comments": 130
         },
         {
           "week": "2026-W37",
-          "commits": 81,
+          "commits": 82,
           "prs": 36,
           "reviews": 18,
-          "comments": 0
+          "comments": 76
         },
         {
           "week": "2026-W38",
-          "commits": 30,
-          "prs": 17,
-          "reviews": 4,
-          "comments": 0
+          "commits": 122,
+          "prs": 51,
+          "reviews": 5,
+          "comments": 39
+        },
+        {
+          "week": "2026-W39",
+          "commits": 1,
+          "prs": 1,
+          "reviews": 0,
+          "comments": 1
         }
       ],
-      "last_activity_at": "2026-09-16T21:56:00.629Z",
+      "last_activity_at": "2026-09-21T00:38:25Z",
       "leaderboards": {
         "commits": [
           {
             "login": "portlandhodl",
-            "count": 369
+            "count": 389
           },
           {
             "login": "w-s-bitcoin",
-            "count": 203
+            "count": 206
+          },
+          {
+            "login": "MrHodlX",
+            "count": 75
+          },
+          {
+            "login": "timechainb",
+            "count": 61
           },
           {
             "login": "dplusplus1024",
             "count": 44
-          },
-          {
-            "login": "timechainb",
-            "count": 42
-          },
-          {
-            "login": "MrHodlX",
-            "count": 31
           },
           {
             "login": "ottoz0r",
@@ -356,16 +512,20 @@
             "count": 23
           },
           {
-            "login": "J25dunn",
+            "login": "itme-brain",
             "count": 13
           },
           {
             "login": "RandyMcMillan",
-            "count": 12
+            "count": 11
           },
           {
-            "login": "itme-brain",
+            "login": "claude",
             "count": 11
+          },
+          {
+            "login": "J25dunn",
+            "count": 10
           },
           {
             "login": "2140data",
@@ -408,7 +568,19 @@
             "count": 2
           },
           {
+            "login": "codex",
+            "count": 2
+          },
+          {
+            "login": "csuwildcat",
+            "count": 2
+          },
+          {
             "login": "dani69654",
+            "count": 2
+          },
+          {
+            "login": "hotpixelgroup",
             "count": 2
           },
           {
@@ -424,10 +596,6 @@
             "count": 1
           },
           {
-            "login": "csuwildcat",
-            "count": 1
-          },
-          {
             "login": "doggyballs",
             "count": 1
           },
@@ -440,7 +608,7 @@
             "count": 1
           },
           {
-            "login": "hotpixelgroup",
+            "login": "email:93964419ae80c511",
             "count": 1
           },
           {
@@ -455,11 +623,11 @@
         "prs": [
           {
             "login": "portlandhodl",
-            "count": 78
+            "count": 81
           },
           {
             "login": "MrHodlX",
-            "count": 55
+            "count": 80
           },
           {
             "login": "w-s-bitcoin",
@@ -467,7 +635,7 @@
           },
           {
             "login": "timechainb",
-            "count": 21
+            "count": 26
           },
           {
             "login": "ottoz0r",
@@ -542,6 +710,10 @@
             "count": 2
           },
           {
+            "login": "doggyballs",
+            "count": 2
+          },
+          {
             "login": "pdubl22",
             "count": 2
           },
@@ -554,15 +726,15 @@
             "count": 2
           },
           {
+            "login": "CypherBoxLLC",
+            "count": 1
+          },
+          {
             "login": "Korg1970",
             "count": 1
           },
           {
             "login": "Shitnobi",
-            "count": 1
-          },
-          {
-            "login": "doggyballs",
             "count": 1
           },
           {
@@ -581,7 +753,7 @@
         "reviews": [
           {
             "login": "MrHodlX",
-            "count": 21
+            "count": 22
           },
           {
             "login": "J25dunn",
@@ -596,130 +768,441 @@
             "count": 1
           }
         ],
+        "comments": [
+          {
+            "login": "portlandhodl",
+            "count": 84
+          },
+          {
+            "login": "Hero-Gamer",
+            "count": 53
+          },
+          {
+            "login": "w-s-bitcoin",
+            "count": 46
+          },
+          {
+            "login": "MrHodlX",
+            "count": 23
+          },
+          {
+            "login": "RandyMcMillan",
+            "count": 19
+          },
+          {
+            "login": "J25dunn",
+            "count": 18
+          },
+          {
+            "login": "BTCMcBoatface",
+            "count": 14
+          },
+          {
+            "login": "dplusplus1024",
+            "count": 11
+          },
+          {
+            "login": "itme-brain",
+            "count": 9
+          },
+          {
+            "login": "dani69654",
+            "count": 7
+          },
+          {
+            "login": "ottoz0r",
+            "count": 6
+          },
+          {
+            "login": "timechainb",
+            "count": 5
+          },
+          {
+            "login": "hotpixelgroup",
+            "count": 4
+          },
+          {
+            "login": "tmmmemcee",
+            "count": 3
+          },
+          {
+            "login": "HodlDee",
+            "count": 2
+          },
+          {
+            "login": "Jdelg718",
+            "count": 2
+          },
+          {
+            "login": "rules-without-rulers",
+            "count": 2
+          },
+          {
+            "login": "100megasats",
+            "count": 1
+          },
+          {
+            "login": "2140data",
+            "count": 1
+          },
+          {
+            "login": "Bitcoin-Bill",
+            "count": 1
+          },
+          {
+            "login": "csuwildcat",
+            "count": 1
+          },
+          {
+            "login": "doggyballs",
+            "count": 1
+          },
+          {
+            "login": "remcoros",
+            "count": 1
+          },
+          {
+            "login": "unclejim7",
+            "count": 1
+          }
+        ]
+      }
+    },
+    {
+      "name": "oogaboogaland",
+      "totals": {
+        "contributors": 9,
+        "commits": 116,
+        "prs": 50,
+        "reviews": 3,
+        "comments": 1
+      },
+      "weekly": [
+        {
+          "week": "2026-W37",
+          "commits": 45,
+          "prs": 19,
+          "reviews": 0,
+          "comments": 1
+        },
+        {
+          "week": "2026-W38",
+          "commits": 70,
+          "prs": 30,
+          "reviews": 3,
+          "comments": 0
+        },
+        {
+          "week": "2026-W39",
+          "commits": 1,
+          "prs": 1,
+          "reviews": 0,
+          "comments": 0
+        }
+      ],
+      "last_activity_at": "2026-09-21T01:27:23Z",
+      "leaderboards": {
+        "commits": [
+          {
+            "login": "w-s-bitcoin",
+            "count": 62
+          },
+          {
+            "login": "2140data",
+            "count": 33
+          },
+          {
+            "login": "knorrium",
+            "count": 7
+          },
+          {
+            "login": "MrHodlX",
+            "count": 5
+          },
+          {
+            "login": "rules-without-rulers",
+            "count": 3
+          },
+          {
+            "login": "Holo-Elfstone",
+            "count": 2
+          },
+          {
+            "login": "itsneski",
+            "count": 2
+          },
+          {
+            "login": "YellowBrokeIt",
+            "count": 1
+          },
+          {
+            "login": "ottoz0r",
+            "count": 1
+          }
+        ],
+        "prs": [
+          {
+            "login": "w-s-bitcoin",
+            "count": 19
+          },
+          {
+            "login": "2140data",
+            "count": 13
+          },
+          {
+            "login": "knorrium",
+            "count": 5
+          },
+          {
+            "login": "rules-without-rulers",
+            "count": 4
+          },
+          {
+            "login": "MrHodlX",
+            "count": 3
+          },
+          {
+            "login": "YellowBrokeIt",
+            "count": 2
+          },
+          {
+            "login": "itsneski",
+            "count": 2
+          },
+          {
+            "login": "Holo-Elfstone",
+            "count": 1
+          },
+          {
+            "login": "ottoz0r",
+            "count": 1
+          }
+        ],
+        "reviews": [
+          {
+            "login": "w-s-bitcoin",
+            "count": 3
+          }
+        ],
+        "comments": [
+          {
+            "login": "w-s-bitcoin",
+            "count": 1
+          }
+        ]
+      }
+    },
+    {
+      "name": "bedrock",
+      "totals": {
+        "contributors": 2,
+        "commits": 19,
+        "prs": 6,
+        "reviews": 0,
+        "comments": 0
+      },
+      "weekly": [
+        {
+          "week": "2026-W36",
+          "commits": 16,
+          "prs": 6,
+          "reviews": 0,
+          "comments": 0
+        },
+        {
+          "week": "2026-W37",
+          "commits": 3,
+          "prs": 0,
+          "reviews": 0,
+          "comments": 0
+        }
+      ],
+      "last_activity_at": "2026-09-07T05:21:02Z",
+      "leaderboards": {
+        "commits": [
+          {
+            "login": "w-s-bitcoin",
+            "count": 13
+          },
+          {
+            "login": "ottoz0r",
+            "count": 6
+          }
+        ],
+        "prs": [
+          {
+            "login": "w-s-bitcoin",
+            "count": 6
+          }
+        ],
+        "reviews": [],
         "comments": []
       }
     }
   ],
   "recent": [
     {
-      "login": "portlandhodl",
-      "repo": "entropylab",
-      "type": "commit",
-      "occurred_at": "2026-09-16T21:56:00.629Z"
+      "login": "rules-without-rulers",
+      "repo": "oogaboogaland",
+      "type": "pr",
+      "occurred_at": "2026-09-21T01:27:23Z"
     },
     {
       "login": "w-s-bitcoin",
-      "repo": "entropylab",
-      "type": "pr",
-      "occurred_at": "2026-09-16T21:56:00.629Z"
-    },
-    {
-      "login": "dplusplus1024",
-      "repo": "entropylab",
-      "type": "review",
-      "occurred_at": "2026-09-16T21:56:00.629Z"
-    },
-    {
-      "login": "timechainb",
-      "repo": "entropylab",
+      "repo": "oogaboogaland",
       "type": "merge",
-      "occurred_at": "2026-09-16T21:56:00.629Z"
+      "occurred_at": "2026-09-21T00:55:24Z"
     },
     {
       "login": "MrHodlX",
       "repo": "entropylab",
-      "type": "comment",
-      "occurred_at": "2026-09-16T21:56:00.629Z"
+      "type": "merge",
+      "occurred_at": "2026-09-21T00:38:25Z"
     },
     {
-      "login": "ottoz0r",
+      "login": "doggyballs",
       "repo": "entropylab",
+      "type": "comment",
+      "occurred_at": "2026-09-21T00:35:15Z"
+    },
+    {
+      "login": "doggyballs",
+      "repo": "entropylab",
+      "type": "pr",
+      "occurred_at": "2026-09-21T00:29:30Z"
+    },
+    {
+      "login": "2140data",
+      "repo": "oogaboogaland",
+      "type": "merge",
+      "occurred_at": "2026-09-20T23:34:19Z"
+    },
+    {
+      "login": "2140data",
+      "repo": "oogaboogaland",
+      "type": "pr",
+      "occurred_at": "2026-09-20T23:34:11Z"
+    },
+    {
+      "login": "2140data",
+      "repo": "oogaboogaland",
       "type": "commit",
-      "occurred_at": "2026-09-16T21:56:00.629Z"
+      "occurred_at": "2026-09-20T23:33:08Z"
+    },
+    {
+      "login": "Holo-Elfstone",
+      "repo": "oogaboogaland",
+      "type": "pr",
+      "occurred_at": "2026-09-20T23:11:31Z"
+    },
+    {
+      "login": "Holo-Elfstone",
+      "repo": "oogaboogaland",
+      "type": "commit",
+      "occurred_at": "2026-09-20T23:03:29Z"
+    },
+    {
+      "login": "2140data",
+      "repo": "oogaboogaland",
+      "type": "commit",
+      "occurred_at": "2026-09-20T23:02:58Z"
+    },
+    {
+      "login": "Holo-Elfstone",
+      "repo": "oogaboogaland",
+      "type": "commit",
+      "occurred_at": "2026-09-20T22:55:34Z"
     }
   ],
   "contributors": [
     {
       "login": "portlandhodl",
-      "display_name": "Portland.HODL",
+      "display_name": "russeree",
       "avatar_url": "https://avatars.githubusercontent.com/u/3104223?u=ea6d34e4f4edbbf6382c19248fb2df32273120bb&v=4",
       "first_seen_at": "2026-08-26T20:48:50Z",
-      "last_seen_at": "2026-09-15T17:51:23Z",
+      "last_seen_at": "2026-09-19T16:10:42Z",
       "counts": {
-        "commits": 369,
-        "prs": 78,
+        "commits": 389,
+        "prs": 81,
         "reviews": 4,
-        "comments": 0
+        "comments": 84
       },
       "weekly": [
         {
           "week": "2026-W35",
-          "commits": 111,
+          "commits": 112,
           "prs": 34,
           "reviews": 0,
-          "comments": 0
+          "comments": 17
         },
         {
           "week": "2026-W36",
-          "commits": 229,
+          "commits": 231,
           "prs": 40,
           "reviews": 2,
-          "comments": 0
+          "comments": 58
         },
         {
           "week": "2026-W37",
           "commits": 21,
           "prs": 2,
           "reviews": 0,
-          "comments": 0
+          "comments": 1
         },
         {
           "week": "2026-W38",
-          "commits": 8,
-          "prs": 2,
+          "commits": 25,
+          "prs": 5,
           "reviews": 2,
-          "comments": 0
+          "comments": 8
         }
       ]
     },
     {
       "login": "w-s-bitcoin",
-      "display_name": "Wicked",
+      "display_name": "w-s-bitcoin",
       "avatar_url": "https://avatars.githubusercontent.com/u/95375789?u=731610cc75a90365bb046e18f5c42d75b34f74ea&v=4",
       "first_seen_at": "2026-08-25T14:20:04Z",
-      "last_seen_at": "2026-09-16T16:03:54Z",
+      "last_seen_at": "2026-09-21T00:55:24Z",
       "counts": {
-        "commits": 203,
-        "prs": 32,
-        "reviews": 0,
-        "comments": 0
+        "commits": 281,
+        "prs": 57,
+        "reviews": 3,
+        "comments": 47
       },
       "weekly": [
         {
           "week": "2026-W35",
-          "commits": 113,
+          "commits": 115,
           "prs": 13,
           "reviews": 0,
-          "comments": 0
+          "comments": 9
         },
         {
           "week": "2026-W36",
-          "commits": 51,
-          "prs": 13,
+          "commits": 61,
+          "prs": 19,
           "reviews": 0,
-          "comments": 0
+          "comments": 1
         },
         {
           "week": "2026-W37",
-          "commits": 35,
-          "prs": 5,
+          "commits": 67,
+          "prs": 17,
           "reviews": 0,
-          "comments": 0
+          "comments": 32
         },
         {
           "week": "2026-W38",
-          "commits": 4,
-          "prs": 1,
+          "commits": 37,
+          "prs": 8,
+          "reviews": 3,
+          "comments": 5
+        },
+        {
+          "week": "2026-W39",
+          "commits": 1,
+          "prs": 0,
           "reviews": 0,
           "comments": 0
         }
@@ -730,12 +1213,12 @@
       "display_name": "MrHodlX",
       "avatar_url": "https://avatars.githubusercontent.com/u/289396684?u=dd8059861f298e4f5b2f9026c7e5f04b74ba0283&v=4",
       "first_seen_at": "2026-08-25T19:46:31Z",
-      "last_seen_at": "2026-09-16T13:18:12Z",
+      "last_seen_at": "2026-09-21T00:38:25Z",
       "counts": {
-        "commits": 31,
-        "prs": 55,
-        "reviews": 21,
-        "comments": 0
+        "commits": 80,
+        "prs": 83,
+        "reviews": 22,
+        "comments": 23
       },
       "weekly": [
         {
@@ -743,34 +1226,84 @@
           "commits": 11,
           "prs": 19,
           "reviews": 0,
-          "comments": 0
+          "comments": 1
         },
         {
           "week": "2026-W36",
           "commits": 10,
           "prs": 20,
           "reviews": 13,
-          "comments": 0
+          "comments": 4
         },
         {
           "week": "2026-W37",
-          "commits": 5,
-          "prs": 9,
+          "commits": 6,
+          "prs": 10,
           "reviews": 7,
-          "comments": 0
+          "comments": 5
         },
         {
           "week": "2026-W38",
-          "commits": 5,
-          "prs": 7,
-          "reviews": 1,
+          "commits": 52,
+          "prs": 34,
+          "reviews": 2,
+          "comments": 13
+        },
+        {
+          "week": "2026-W39",
+          "commits": 1,
+          "prs": 0,
+          "reviews": 0,
           "comments": 0
         }
       ]
     },
     {
+      "login": "timechainb",
+      "display_name": "timechainb",
+      "avatar_url": "https://avatars.githubusercontent.com/u/106615835?u=37859adf1972375d7619032a82b93f893ecd3895&v=4",
+      "first_seen_at": "2026-08-28T23:11:46Z",
+      "last_seen_at": "2026-09-19T20:58:17Z",
+      "counts": {
+        "commits": 61,
+        "prs": 26,
+        "reviews": 0,
+        "comments": 5
+      },
+      "weekly": [
+        {
+          "week": "2026-W35",
+          "commits": 12,
+          "prs": 7,
+          "reviews": 0,
+          "comments": 0
+        },
+        {
+          "week": "2026-W36",
+          "commits": 12,
+          "prs": 7,
+          "reviews": 0,
+          "comments": 0
+        },
+        {
+          "week": "2026-W37",
+          "commits": 7,
+          "prs": 4,
+          "reviews": 0,
+          "comments": 1
+        },
+        {
+          "week": "2026-W38",
+          "commits": 30,
+          "prs": 8,
+          "reviews": 0,
+          "comments": 4
+        }
+      ]
+    },
+    {
       "login": "Hero-Gamer",
-      "display_name": "Hero-Gamer",
+      "display_name": "herogamer",
       "avatar_url": "https://avatars.githubusercontent.com/u/92864860?u=baaef32bafec29aa2a28f637ed46ad873a32e4b8&v=4",
       "first_seen_at": "2026-08-30T21:30:47Z",
       "last_seen_at": "2026-09-16T21:26:04Z",
@@ -778,7 +1311,7 @@
         "commits": 8,
         "prs": 12,
         "reviews": 1,
-        "comments": 0
+        "comments": 53
       },
       "weekly": [
         {
@@ -786,28 +1319,28 @@
           "commits": 0,
           "prs": 0,
           "reviews": 0,
-          "comments": 0
+          "comments": 1
         },
         {
           "week": "2026-W36",
           "commits": 2,
           "prs": 6,
           "reviews": 0,
-          "comments": 0
+          "comments": 31
         },
         {
           "week": "2026-W37",
           "commits": 6,
           "prs": 4,
           "reviews": 1,
-          "comments": 0
+          "comments": 19
         },
         {
           "week": "2026-W38",
           "commits": 0,
           "prs": 2,
           "reviews": 0,
-          "comments": 0
+          "comments": 2
         }
       ]
     },
@@ -821,7 +1354,7 @@
         "commits": 44,
         "prs": 13,
         "reviews": 0,
-        "comments": 0
+        "comments": 11
       },
       "weekly": [
         {
@@ -829,55 +1362,55 @@
           "commits": 16,
           "prs": 6,
           "reviews": 0,
-          "comments": 0
+          "comments": 2
         },
         {
           "week": "2026-W36",
           "commits": 28,
           "prs": 7,
           "reviews": 0,
-          "comments": 0
+          "comments": 9
         }
       ]
     },
     {
-      "login": "timechainb",
-      "display_name": "timechainb",
-      "avatar_url": "https://avatars.githubusercontent.com/u/106615835?u=37859adf1972375d7619032a82b93f893ecd3895&v=4",
-      "first_seen_at": "2026-08-28T23:11:46Z",
-      "last_seen_at": "2026-09-16T19:39:25Z",
+      "login": "2140data",
+      "display_name": "2140data",
+      "avatar_url": "https://avatars.githubusercontent.com/u/72945059?u=08c464af9684606134e7029f490202cfcdeefdf0&v=4",
+      "first_seen_at": "2026-08-27T00:18:33Z",
+      "last_seen_at": "2026-09-20T23:34:19Z",
       "counts": {
         "commits": 42,
-        "prs": 21,
+        "prs": 23,
         "reviews": 0,
-        "comments": 0
+        "comments": 1
       },
       "weekly": [
         {
           "week": "2026-W35",
-          "commits": 12,
-          "prs": 7,
+          "commits": 8,
+          "prs": 9,
           "reviews": 0,
-          "comments": 0
+          "comments": 1
         },
         {
           "week": "2026-W36",
-          "commits": 12,
-          "prs": 7,
+          "commits": 1,
+          "prs": 1,
           "reviews": 0,
           "comments": 0
         },
         {
           "week": "2026-W37",
-          "commits": 7,
-          "prs": 4,
+          "commits": 15,
+          "prs": 5,
           "reviews": 0,
           "comments": 0
         },
         {
           "week": "2026-W38",
-          "commits": 11,
-          "prs": 3,
+          "commits": 18,
+          "prs": 8,
           "reviews": 0,
           "comments": 0
         }
@@ -890,10 +1423,10 @@
       "first_seen_at": "2026-08-30T18:19:41Z",
       "last_seen_at": "2026-09-14T12:31:24Z",
       "counts": {
-        "commits": 13,
+        "commits": 10,
         "prs": 16,
         "reviews": 14,
-        "comments": 0
+        "comments": 18
       },
       "weekly": [
         {
@@ -901,28 +1434,28 @@
           "commits": 1,
           "prs": 3,
           "reviews": 2,
-          "comments": 0
+          "comments": 3
         },
         {
           "week": "2026-W36",
-          "commits": 7,
+          "commits": 6,
           "prs": 7,
           "reviews": 1,
-          "comments": 0
+          "comments": 2
         },
         {
           "week": "2026-W37",
           "commits": 3,
           "prs": 6,
           "reviews": 10,
-          "comments": 0
+          "comments": 11
         },
         {
           "week": "2026-W38",
-          "commits": 2,
+          "commits": 0,
           "prs": 0,
           "reviews": 1,
-          "comments": 0
+          "comments": 2
         }
       ]
     },
@@ -931,12 +1464,12 @@
       "display_name": "bc1gui",
       "avatar_url": "https://avatars.githubusercontent.com/u/254922163?u=cc419e177eda24a1f96f4ede8c8fcff48387d35a&v=4",
       "first_seen_at": "2026-08-27T01:40:00Z",
-      "last_seen_at": "2026-09-02T02:19:20Z",
+      "last_seen_at": "2026-09-07T21:41:44Z",
       "counts": {
-        "commits": 24,
-        "prs": 18,
+        "commits": 31,
+        "prs": 19,
         "reviews": 0,
-        "comments": 0
+        "comments": 6
       },
       "weekly": [
         {
@@ -944,12 +1477,19 @@
           "commits": 16,
           "prs": 11,
           "reviews": 0,
-          "comments": 0
+          "comments": 5
         },
         {
           "week": "2026-W36",
-          "commits": 8,
+          "commits": 14,
           "prs": 7,
+          "reviews": 0,
+          "comments": 1
+        },
+        {
+          "week": "2026-W37",
+          "commits": 1,
+          "prs": 1,
           "reviews": 0,
           "comments": 0
         }
@@ -962,10 +1502,10 @@
       "first_seen_at": "2026-08-29T14:22:56Z",
       "last_seen_at": "2026-08-31T09:57:39Z",
       "counts": {
-        "commits": 12,
+        "commits": 11,
         "prs": 4,
         "reviews": 0,
-        "comments": 0
+        "comments": 19
       },
       "weekly": [
         {
@@ -973,14 +1513,14 @@
           "commits": 9,
           "prs": 3,
           "reviews": 0,
-          "comments": 0
+          "comments": 16
         },
         {
           "week": "2026-W36",
-          "commits": 3,
+          "commits": 2,
           "prs": 1,
           "reviews": 0,
-          "comments": 0
+          "comments": 3
         }
       ]
     },
@@ -991,10 +1531,10 @@
       "first_seen_at": "2026-08-26T23:13:47Z",
       "last_seen_at": "2026-09-05T00:24:12Z",
       "counts": {
-        "commits": 11,
+        "commits": 13,
         "prs": 11,
         "reviews": 0,
-        "comments": 0
+        "comments": 9
       },
       "weekly": [
         {
@@ -1002,14 +1542,14 @@
           "commits": 10,
           "prs": 9,
           "reviews": 0,
-          "comments": 0
+          "comments": 6
         },
         {
           "week": "2026-W36",
-          "commits": 1,
+          "commits": 3,
           "prs": 2,
           "reviews": 0,
-          "comments": 0
+          "comments": 3
         }
       ]
     },
@@ -1036,35 +1576,6 @@
       ]
     },
     {
-      "login": "2140data",
-      "display_name": "2140data",
-      "avatar_url": "https://avatars.githubusercontent.com/u/72945059?u=08c464af9684606134e7029f490202cfcdeefdf0&v=4",
-      "first_seen_at": "2026-08-27T00:18:33Z",
-      "last_seen_at": "2026-08-31T04:54:04Z",
-      "counts": {
-        "commits": 9,
-        "prs": 10,
-        "reviews": 0,
-        "comments": 0
-      },
-      "weekly": [
-        {
-          "week": "2026-W35",
-          "commits": 8,
-          "prs": 9,
-          "reviews": 0,
-          "comments": 0
-        },
-        {
-          "week": "2026-W36",
-          "commits": 1,
-          "prs": 1,
-          "reviews": 0,
-          "comments": 0
-        }
-      ]
-    },
-    {
       "login": "BTCMcBoatface",
       "display_name": "BTCMcBoatface",
       "avatar_url": "https://avatars.githubusercontent.com/u/150210608?u=ccf304ac04e45714aaaae2c1f65705a3d665f86f&v=4",
@@ -1074,7 +1585,7 @@
         "commits": 3,
         "prs": 2,
         "reviews": 0,
-        "comments": 0
+        "comments": 14
       },
       "weekly": [
         {
@@ -1082,21 +1593,21 @@
           "commits": 2,
           "prs": 1,
           "reviews": 0,
-          "comments": 0
+          "comments": 4
         },
         {
           "week": "2026-W36",
           "commits": 0,
           "prs": 0,
           "reviews": 0,
-          "comments": 0
+          "comments": 6
         },
         {
           "week": "2026-W37",
           "commits": 1,
           "prs": 1,
           "reviews": 0,
-          "comments": 0
+          "comments": 4
         }
       ]
     },
@@ -1123,6 +1634,49 @@
       ]
     },
     {
+      "login": "rules-without-rulers",
+      "display_name": "rules-without-rulers",
+      "avatar_url": "https://avatars.githubusercontent.com/u/321615163?u=610bac60b0c49b2664767721f95cb1f0e1373539&v=4",
+      "first_seen_at": "2026-08-29T00:09:52Z",
+      "last_seen_at": "2026-09-21T01:27:23Z",
+      "counts": {
+        "commits": 5,
+        "prs": 6,
+        "reviews": 0,
+        "comments": 2
+      },
+      "weekly": [
+        {
+          "week": "2026-W35",
+          "commits": 2,
+          "prs": 2,
+          "reviews": 0,
+          "comments": 0
+        },
+        {
+          "week": "2026-W37",
+          "commits": 0,
+          "prs": 0,
+          "reviews": 0,
+          "comments": 2
+        },
+        {
+          "week": "2026-W38",
+          "commits": 3,
+          "prs": 3,
+          "reviews": 0,
+          "comments": 0
+        },
+        {
+          "week": "2026-W39",
+          "commits": 0,
+          "prs": 1,
+          "reviews": 0,
+          "comments": 0
+        }
+      ]
+    },
+    {
       "login": "Jdelg718",
       "display_name": "FF2K",
       "avatar_url": "https://avatars.githubusercontent.com/u/150862258?u=2892c83863083894fdf1dd0cdfb17e242a15f479&v=4",
@@ -1132,7 +1686,7 @@
         "commits": 5,
         "prs": 5,
         "reviews": 0,
-        "comments": 0
+        "comments": 2
       },
       "weekly": [
         {
@@ -1140,14 +1694,14 @@
           "commits": 3,
           "prs": 5,
           "reviews": 0,
-          "comments": 0
+          "comments": 1
         },
         {
           "week": "2026-W36",
           "commits": 2,
           "prs": 0,
           "reviews": 0,
-          "comments": 0
+          "comments": 1
         }
       ]
     },
@@ -1161,7 +1715,7 @@
         "commits": 2,
         "prs": 3,
         "reviews": 0,
-        "comments": 0
+        "comments": 7
       },
       "weekly": [
         {
@@ -1169,18 +1723,62 @@
           "commits": 1,
           "prs": 1,
           "reviews": 0,
-          "comments": 0
+          "comments": 1
         },
         {
           "week": "2026-W36",
           "commits": 1,
           "prs": 2,
           "reviews": 0,
-          "comments": 0
+          "comments": 5
         },
         {
           "week": "2026-W37",
           "commits": 0,
+          "prs": 0,
+          "reviews": 0,
+          "comments": 1
+        }
+      ]
+    },
+    {
+      "login": "knorrium",
+      "display_name": "Felipe Knorr Kuhn",
+      "avatar_url": "https://avatars.githubusercontent.com/u/100320?u=482d7232587248b05920378c3885ddd60dd71dd8&v=4",
+      "first_seen_at": "2026-09-20T18:25:49Z",
+      "last_seen_at": "2026-09-20T21:18:34Z",
+      "counts": {
+        "commits": 7,
+        "prs": 5,
+        "reviews": 0,
+        "comments": 0
+      },
+      "weekly": [
+        {
+          "week": "2026-W38",
+          "commits": 7,
+          "prs": 5,
+          "reviews": 0,
+          "comments": 0
+        }
+      ]
+    },
+    {
+      "login": "claude",
+      "display_name": "Claude",
+      "avatar_url": "https://avatars.githubusercontent.com/u/81847?u=577eaff0520b33aadc0f9fb6d11f5cdb2dd9486e&v=4",
+      "first_seen_at": "2026-09-18T14:06:31Z",
+      "last_seen_at": "2026-09-20T10:26:38Z",
+      "counts": {
+        "commits": 11,
+        "prs": 0,
+        "reviews": 0,
+        "comments": 0
+      },
+      "weekly": [
+        {
+          "week": "2026-W38",
+          "commits": 11,
           "prs": 0,
           "reviews": 0,
           "comments": 0
@@ -1192,12 +1790,12 @@
       "display_name": "Harry Beckwith",
       "avatar_url": "https://avatars.githubusercontent.com/u/2301075?u=b51e1f5c773671407e3968e47d159e18cd7e6ebf&v=4",
       "first_seen_at": "2026-09-03T06:16:55Z",
-      "last_seen_at": "2026-09-14T02:11:28Z",
+      "last_seen_at": "2026-09-17T16:15:09Z",
       "counts": {
-        "commits": 1,
+        "commits": 2,
         "prs": 4,
         "reviews": 0,
-        "comments": 0
+        "comments": 4
       },
       "weekly": [
         {
@@ -1205,7 +1803,7 @@
           "commits": 0,
           "prs": 2,
           "reviews": 0,
-          "comments": 0
+          "comments": 2
         },
         {
           "week": "2026-W37",
@@ -1216,10 +1814,10 @@
         },
         {
           "week": "2026-W38",
-          "commits": 0,
+          "commits": 1,
           "prs": 0,
           "reviews": 0,
-          "comments": 0
+          "comments": 2
         }
       ]
     },
@@ -1246,31 +1844,31 @@
       ]
     },
     {
-      "login": "rules-without-rulers",
-      "display_name": "genXbtc",
-      "avatar_url": "https://avatars.githubusercontent.com/u/321615163?u=610bac60b0c49b2664767721f95cb1f0e1373539&v=4",
-      "first_seen_at": "2026-08-29T00:09:52Z",
-      "last_seen_at": "2026-09-12T17:11:11Z",
+      "login": "tmmmemcee",
+      "display_name": null,
+      "avatar_url": "https://avatars.githubusercontent.com/u/24487798?v=4",
+      "first_seen_at": "2026-08-29T13:39:22Z",
+      "last_seen_at": "2026-09-17T00:58:54Z",
       "counts": {
-        "commits": 2,
-        "prs": 2,
+        "commits": 0,
+        "prs": 3,
         "reviews": 0,
-        "comments": 0
+        "comments": 3
       },
       "weekly": [
         {
           "week": "2026-W35",
-          "commits": 2,
-          "prs": 2,
+          "commits": 0,
+          "prs": 1,
           "reviews": 0,
           "comments": 0
         },
         {
-          "week": "2026-W37",
+          "week": "2026-W38",
           "commits": 0,
-          "prs": 0,
+          "prs": 2,
           "reviews": 0,
-          "comments": 0
+          "comments": 3
         }
       ]
     },
@@ -1284,7 +1882,7 @@
         "commits": 1,
         "prs": 2,
         "reviews": 0,
-        "comments": 0
+        "comments": 2
       },
       "weekly": [
         {
@@ -1292,7 +1890,7 @@
           "commits": 1,
           "prs": 2,
           "reviews": 0,
-          "comments": 0
+          "comments": 2
         }
       ]
     },
@@ -1326,6 +1924,28 @@
       ]
     },
     {
+      "login": "csuwildcat",
+      "display_name": "Daniel Buchner",
+      "avatar_url": "https://avatars.githubusercontent.com/u/131786?u=6645fb12dc6f1a6954bd4cc45923ac74e83d2fc7&v=4",
+      "first_seen_at": "2026-08-30T18:58:08Z",
+      "last_seen_at": "2026-08-30T20:04:05Z",
+      "counts": {
+        "commits": 2,
+        "prs": 2,
+        "reviews": 0,
+        "comments": 1
+      },
+      "weekly": [
+        {
+          "week": "2026-W35",
+          "commits": 2,
+          "prs": 2,
+          "reviews": 0,
+          "comments": 1
+        }
+      ]
+    },
+    {
       "login": "FNBIP",
       "display_name": "AN",
       "avatar_url": "https://avatars.githubusercontent.com/u/130150246?v=4",
@@ -1355,24 +1975,31 @@
       ]
     },
     {
-      "login": "csuwildcat",
-      "display_name": "Daniel Buchner",
-      "avatar_url": "https://avatars.githubusercontent.com/u/131786?u=6645fb12dc6f1a6954bd4cc45923ac74e83d2fc7&v=4",
-      "first_seen_at": "2026-08-30T18:58:08Z",
-      "last_seen_at": "2026-08-30T19:53:33Z",
+      "login": "doggyballs",
+      "display_name": "doggyballs",
+      "avatar_url": "https://avatars.githubusercontent.com/u/322880795?v=4",
+      "first_seen_at": "2026-08-31T05:11:23Z",
+      "last_seen_at": "2026-09-21T00:35:15Z",
       "counts": {
         "commits": 1,
         "prs": 2,
         "reviews": 0,
-        "comments": 0
+        "comments": 1
       },
       "weekly": [
         {
-          "week": "2026-W35",
+          "week": "2026-W36",
           "commits": 1,
-          "prs": 2,
+          "prs": 1,
           "reviews": 0,
           "comments": 0
+        },
+        {
+          "week": "2026-W39",
+          "commits": 0,
+          "prs": 1,
+          "reviews": 0,
+          "comments": 1
         }
       ]
     },
@@ -1421,29 +2048,44 @@
       ]
     },
     {
-      "login": "tmmmemcee",
-      "display_name": null,
-      "avatar_url": "https://avatars.githubusercontent.com/u/24487798?v=4",
-      "first_seen_at": "2026-08-29T13:39:22Z",
-      "last_seen_at": "2026-09-16T19:56:27Z",
+      "login": "itsneski",
+      "display_name": "Neski",
+      "avatar_url": "https://avatars.githubusercontent.com/u/91937527?u=428ca2d262d4b98ee11d9c8850eb38831d8cb10e&v=4",
+      "first_seen_at": "2026-09-18T00:57:10Z",
+      "last_seen_at": "2026-09-19T00:00:58Z",
       "counts": {
-        "commits": 0,
-        "prs": 3,
+        "commits": 2,
+        "prs": 2,
         "reviews": 0,
         "comments": 0
       },
       "weekly": [
         {
-          "week": "2026-W35",
-          "commits": 0,
-          "prs": 1,
+          "week": "2026-W38",
+          "commits": 2,
+          "prs": 2,
           "reviews": 0,
           "comments": 0
-        },
+        }
+      ]
+    },
+    {
+      "login": "Holo-Elfstone",
+      "display_name": "Holo-Elfstone",
+      "avatar_url": "https://avatars.githubusercontent.com/u/317597769?v=4",
+      "first_seen_at": "2026-09-20T22:55:34Z",
+      "last_seen_at": "2026-09-20T23:11:31Z",
+      "counts": {
+        "commits": 2,
+        "prs": 1,
+        "reviews": 0,
+        "comments": 0
+      },
+      "weekly": [
         {
           "week": "2026-W38",
-          "commits": 0,
-          "prs": 2,
+          "commits": 2,
+          "prs": 1,
           "reviews": 0,
           "comments": 0
         }
@@ -1466,6 +2108,28 @@
           "week": "2026-W35",
           "commits": 0,
           "prs": 3,
+          "reviews": 0,
+          "comments": 0
+        }
+      ]
+    },
+    {
+      "login": "YellowBrokeIt",
+      "display_name": "YellowBrokeIt",
+      "avatar_url": "https://avatars.githubusercontent.com/u/328493845?u=60cc1d17461ed130706a34dd3d31df5ab67e9368&v=4",
+      "first_seen_at": "2026-09-17T20:45:25Z",
+      "last_seen_at": "2026-09-20T20:45:03Z",
+      "counts": {
+        "commits": 1,
+        "prs": 2,
+        "reviews": 0,
+        "comments": 0
+      },
+      "weekly": [
+        {
+          "week": "2026-W38",
+          "commits": 1,
+          "prs": 2,
           "reviews": 0,
           "comments": 0
         }
@@ -1523,22 +2187,22 @@
       ]
     },
     {
-      "login": "doggyballs",
-      "display_name": "doggyballs",
-      "avatar_url": "https://avatars.githubusercontent.com/u/322880795?v=4",
-      "first_seen_at": "2026-08-31T05:11:23Z",
-      "last_seen_at": "2026-09-01T18:55:14Z",
+      "login": "codex",
+      "display_name": "Codex",
+      "avatar_url": "https://avatars.githubusercontent.com/u/267193182?u=8d933ea4ecf726d71bfa940532b8cf8f04ee0ab3&v=4",
+      "first_seen_at": "2026-09-20T12:27:29Z",
+      "last_seen_at": "2026-09-20T12:27:29Z",
       "counts": {
-        "commits": 1,
-        "prs": 1,
+        "commits": 2,
+        "prs": 0,
         "reviews": 0,
         "comments": 0
       },
       "weekly": [
         {
-          "week": "2026-W36",
-          "commits": 1,
-          "prs": 1,
+          "week": "2026-W38",
+          "commits": 2,
+          "prs": 0,
           "reviews": 0,
           "comments": 0
         }
@@ -1576,7 +2240,7 @@
         "commits": 0,
         "prs": 1,
         "reviews": 0,
-        "comments": 0
+        "comments": 1
       },
       "weekly": [
         {
@@ -1584,7 +2248,7 @@
           "commits": 0,
           "prs": 1,
           "reviews": 0,
-          "comments": 0
+          "comments": 1
         }
       ]
     },
@@ -1598,7 +2262,7 @@
         "commits": 0,
         "prs": 0,
         "reviews": 0,
-        "comments": 0
+        "comments": 1
       },
       "weekly": [
         {
@@ -1606,7 +2270,7 @@
           "commits": 0,
           "prs": 0,
           "reviews": 0,
-          "comments": 0
+          "comments": 1
         }
       ]
     },
@@ -1620,13 +2284,35 @@
         "commits": 0,
         "prs": 0,
         "reviews": 0,
-        "comments": 0
+        "comments": 1
       },
       "weekly": [
         {
           "week": "2026-W36",
           "commits": 0,
           "prs": 0,
+          "reviews": 0,
+          "comments": 1
+        }
+      ]
+    },
+    {
+      "login": "CypherBoxLLC",
+      "display_name": null,
+      "avatar_url": "https://avatars.githubusercontent.com/u/199305804?u=f6e1ffd6b87d7c0c43b04d751abc3a02e88ca0b2&v=4",
+      "first_seen_at": "2026-09-19T22:44:16Z",
+      "last_seen_at": "2026-09-19T22:44:16Z",
+      "counts": {
+        "commits": 0,
+        "prs": 1,
+        "reviews": 0,
+        "comments": 0
+      },
+      "weekly": [
+        {
+          "week": "2026-W38",
+          "commits": 0,
+          "prs": 1,
           "reviews": 0,
           "comments": 0
         }
@@ -1721,6 +2407,28 @@
       ]
     },
     {
+      "login": "email:93964419ae80c511",
+      "display_name": "Grok",
+      "avatar_url": null,
+      "first_seen_at": "2026-09-20T10:42:49Z",
+      "last_seen_at": "2026-09-20T10:42:49Z",
+      "counts": {
+        "commits": 1,
+        "prs": 0,
+        "reviews": 0,
+        "comments": 0
+      },
+      "weekly": [
+        {
+          "week": "2026-W38",
+          "commits": 1,
+          "prs": 0,
+          "reviews": 0,
+          "comments": 0
+        }
+      ]
+    },
+    {
       "login": "mikeinspace",
       "display_name": null,
       "avatar_url": "https://avatars.githubusercontent.com/u/30351874?u=5d4411d72869b4576be8ac7ed5fbe906f45e6f6f&v=4",
@@ -1752,7 +2460,7 @@
         "commits": 0,
         "prs": 0,
         "reviews": 0,
-        "comments": 0
+        "comments": 1
       },
       "weekly": [
         {
@@ -1760,7 +2468,7 @@
           "commits": 0,
           "prs": 0,
           "reviews": 0,
-          "comments": 0
+          "comments": 1
         }
       ]
     }
