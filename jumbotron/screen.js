@@ -66,7 +66,13 @@ void main() {
 // Per-face brightness for the flat-shaded voxel look (no runtime lighting).
 // Ratios match oogaboogaland's hemispheric + directional model at day
 // (top : lit side : dark side : bottom ≈ 1.0 : 0.75 : 0.5 : 0.33).
-const FACE_SHADE = { top: 1.0, front: 0.75, side: 0.5, back: 0.42, bottom: 0.33 };
+const FACE_SHADE = {
+  top: 1.0,
+  front: 0.75,
+  side: 0.5,
+  back: 0.42,
+  bottom: 0.33,
+};
 
 /**
  * Appends a shaded axis-aligned box to a vertex array (pos3 + col3 + uv2,
@@ -85,9 +91,12 @@ function pushBox(verts, cx, cy, cz, hx, hy, hz, baseColor) {
       verts.push(corners[i][0], corners[i][1], corners[i][2], ...col, 0, 0);
     }
   };
-  const x0 = cx - hx, x1 = cx + hx;
-  const y0 = cy - hy, y1 = cy + hy;
-  const z0 = cz - hz, z1 = cz + hz;
+  const x0 = cx - hx,
+    x1 = cx + hx;
+  const y0 = cy - hy,
+    y1 = cy + hy;
+  const z0 = cz - hz,
+    z1 = cz + hz;
   // prettier-ignore
   {
     face(FACE_SHADE.front,  [[x0,y0,z1],[x1,y0,z1],[x1,y1,z1],[x0,y1,z1]]);
@@ -129,7 +138,8 @@ export function createScreen(gl, options = {}) {
   const nailColor = rgb(palette.nail ?? "#3a2a18");
 
   // Screen face is aspect x 1 world units, centered at the origin.
-  const sw = aspect, sh = 1;
+  const sw = aspect,
+    sh = 1;
   const border = 0.1;
   const depth = 0.14;
 
@@ -146,16 +156,49 @@ export function createScreen(gl, options = {}) {
   const t = outerH / 9;
   const zr = depth / 2 - 0.02;
   pushBox(verts, 0, outerH / 2 - t / 2, zr, outerW / 2, t / 2, 0.05, woodDark);
-  pushBox(verts, 0, -(outerH / 2 - t / 2), zr, outerW / 2, t / 2, 0.05, woodDark);
+  pushBox(
+    verts,
+    0,
+    -(outerH / 2 - t / 2),
+    zr,
+    outerW / 2,
+    t / 2,
+    0.05,
+    woodDark,
+  );
   pushBox(verts, outerW / 2 - t / 2, 0, zr, t / 2, outerH / 2, 0.05, woodDark);
-  pushBox(verts, -(outerW / 2 - t / 2), 0, zr, t / 2, outerH / 2, 0.05, woodDark);
+  pushBox(
+    verts,
+    -(outerW / 2 - t / 2),
+    0,
+    zr,
+    t / 2,
+    outerH / 2,
+    0.05,
+    woodDark,
+  );
   // corner nails
-  const nx = outerW / 2 - t / 2, ny = outerH / 2 - t / 2;
-  for (const [px, py] of [[-nx, ny], [nx, ny], [-nx, -ny], [nx, -ny]]) {
+  const nx = outerW / 2 - t / 2,
+    ny = outerH / 2 - t / 2;
+  for (const [px, py] of [
+    [-nx, ny],
+    [nx, ny],
+    [-nx, -ny],
+    [nx, -ny],
+  ]) {
     pushBox(verts, px, py, depth / 2 + 0.032, 0.035, 0.035, 0.014, nailColor);
   }
   // dark screen bezel (the lab wall-screen inset), just proud of the slab
-  pushBox(verts, 0, 0, depth / 2 + 0.005, sw / 2 + 0.025, sh / 2 + 0.025, 0.018, screenBezel);
+  pushBox(
+    verts,
+    0,
+    0,
+    depth / 2 + 0.005,
+    sw / 2 + 0.025,
+    sh / 2 + 0.025,
+    0.018,
+    screenBezel,
+  );
   // stand: two wood posts + end-grain feet
   const legX = sw / 2 - 0.18;
   const legH = 0.55;
@@ -168,7 +211,8 @@ export function createScreen(gl, options = {}) {
 
   // screen quad (textured), v flipped so canvas row 0 lands at the top
   const zq = depth / 2 + 0.034;
-  const qx = sw / 2, qy = sh / 2;
+  const qx = sw / 2,
+    qy = sh / 2;
   // prettier-ignore
   const quad = [
     -qx, -qy, zq, 0, 0, 0, 0, 0,
@@ -189,7 +233,9 @@ export function createScreen(gl, options = {}) {
   gl.deleteShader(vs);
   gl.deleteShader(fs);
   if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
-    throw new Error(`jumbotron program link failed: ${gl.getProgramInfoLog(program)}`);
+    throw new Error(
+      `jumbotron program link failed: ${gl.getProgramInfoLog(program)}`,
+    );
   }
   const uMvp = gl.getUniformLocation(program, "u_mvp");
   const uUseTex = gl.getUniformLocation(program, "u_useTex");
@@ -221,8 +267,17 @@ export function createScreen(gl, options = {}) {
   gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
   gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
   // 1x1 placeholder until the first upload
-  gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 1, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE,
-    new Uint8Array([10, 12, 10, 255]));
+  gl.texImage2D(
+    gl.TEXTURE_2D,
+    0,
+    gl.RGBA,
+    1,
+    1,
+    0,
+    gl.RGBA,
+    gl.UNSIGNED_BYTE,
+    new Uint8Array([10, 12, 10, 255]),
+  );
 
   const model = mat4TranslateScale(position, scale);
 
@@ -231,7 +286,14 @@ export function createScreen(gl, options = {}) {
     upload(canvas) {
       gl.bindTexture(gl.TEXTURE_2D, texture);
       gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
-      gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, canvas);
+      gl.texImage2D(
+        gl.TEXTURE_2D,
+        0,
+        gl.RGBA,
+        gl.RGBA,
+        gl.UNSIGNED_BYTE,
+        canvas,
+      );
       gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
     },
 

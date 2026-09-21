@@ -1,15 +1,15 @@
-// Hand-rolled, dependency-free structural validator for the /v1/stats payload
-// (schema_version 2: org-wide totals/leaderboards/contributors plus a
-// per-repo breakdown; comments are not part of the contract). Shared by the
-// worker's contract test, snapshot.mjs, and the jumbotron's data.js. Unknown
-// extra fields are tolerated — the contract allows additive changes within a
-// schema_version.
+// Hand-rolled, dependency-free structural validator for the stats payloads.
+// Dispatches on meta.schema_version: 2 is the pre-comments contract served on
+// /v1/stats; 3 (served on /v2/stats) adds comments, merges folded into
+// commits, per-repo leaderboards, last_activity_at, and the recent feed.
+// Shared by the worker's contract test, snapshot.mjs, and the jumbotron's
+// data.js. Unknown extra fields are tolerated — the contract allows additive
+// changes within a schema_version.
 
 const ISO_DATE =
   /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d+)?(Z|[+-]\d{2}:\d{2})$/;
 const ISO_WEEK = /^\d{4}-W\d{2}$/;
-
-const COUNT_KEYS = ["commits", "prs", "reviews"];
+const RECENT_TYPES = new Set(["commit", "pr", "review", "merge", "comment"]);
 
 /**
  * @param {unknown} json
@@ -27,53 +27,104 @@ export function validateStats(json) {
   }
   const root = /** @type {Record<string, any>} */ (json);
 
-  // meta
   const meta = root.meta;
-  if (typeof meta !== "object" || meta === null) fail("meta missing");
-  else {
-    if (meta.schema_version !== 2) fail(`meta.schema_version !== 2`);
-    if (typeof meta.org !== "string") fail("meta.org not a string");
-    if (
-      typeof meta.generated_at !== "string" ||
-      !ISO_DATE.test(meta.generated_at)
-    )
-      fail("meta.generated_at not ISO-8601");
+  if (typeof meta !== "object" || meta === null) {
+    return { ok: false, errors: ["meta missing"] };
   }
+  const version = meta.schema_version;
+  if (version !== 2 && version !== 3) {
+    return { ok: false, errors: [`unsupported schema_version: ${version}`] };
+  }
+  if (typeof meta.org !== "string") fail("meta.org not a string");
+  if (
+    typeof meta.generated_at !== "string" ||
+    !ISO_DATE.test(meta.generated_at)
+  )
+    fail("meta.generated_at not ISO-8601");
 
-  // totals (org-wide)
-  checkTotals(root.totals, "totals", fail);
+  const countKeys =
+    version === 3
+      ? ["commits", "prs", "reviews", "comments"]
+      : ["commits", "prs", "reviews"];
 
-  // leaderboards (org-wide)
-  const lb = root.leaderboards;
-  if (typeof lb !== "object" || lb === null) fail("leaderboards missing");
-  else {
-    for (const k of COUNT_KEYS) {
+  const checkTotals = (/** @type {any} */ totals, /** @type {string} */ at) => {
+    if (typeof totals !== "object" || totals === null) {
+      fail(`${at} missing`);
+      return;
+    }
+    for (const k of ["contributors", ...countKeys]) {
+      if (!Number.isInteger(totals[k])) fail(`${at}.${k} not an integer`);
+    }
+  };
+  const checkWeekly = (/** @type {any} */ weekly, /** @type {string} */ at) => {
+    if (!Array.isArray(weekly)) {
+      fail(`${at} not an array`);
+      return;
+    }
+    weekly.forEach((/** @type {any} */ w, /** @type {number} */ j) => {
+      if (typeof w?.week !== "string" || !ISO_WEEK.test(w.week))
+        fail(`${at}[${j}].week not YYYY-Www`);
+      for (const k of countKeys) {
+        if (!Number.isInteger(w?.[k])) fail(`${at}[${j}].${k} not an integer`);
+      }
+    });
+  };
+  const checkBoards = (/** @type {any} */ lb, /** @type {string} */ at) => {
+    if (typeof lb !== "object" || lb === null) {
+      fail(`${at} missing`);
+      return;
+    }
+    for (const k of countKeys) {
       if (!Array.isArray(lb[k])) {
-        fail(`leaderboards.${k} not an array`);
+        fail(`${at}.${k} not an array`);
         continue;
       }
       lb[k].forEach((/** @type {any} */ e, /** @type {number} */ i) => {
         if (typeof e?.login !== "string")
-          fail(`leaderboards.${k}[${i}].login not a string`);
+          fail(`${at}.${k}[${i}].login not a string`);
         if (!Number.isInteger(e?.count))
-          fail(`leaderboards.${k}[${i}].count not an integer`);
+          fail(`${at}.${k}[${i}].count not an integer`);
       });
     }
-  }
+  };
 
-  // repos (per-repo breakdown)
+  checkTotals(root.totals, "totals");
+  checkBoards(root.leaderboards, "leaderboards");
+
   if (!Array.isArray(root.repos)) fail("repos not an array");
   else {
     root.repos.forEach((/** @type {any} */ r, /** @type {number} */ i) => {
       const at = `repos[${i}]`;
       if (typeof r?.name !== "string" || r.name.length === 0)
         fail(`${at}.name not a non-empty string`);
-      checkTotals(r?.totals, `${at}.totals`, fail);
-      checkWeekly(r?.weekly, `${at}.weekly`, fail);
+      checkTotals(r?.totals, `${at}.totals`);
+      checkWeekly(r?.weekly, `${at}.weekly`);
+      if (version === 3) {
+        if (
+          r?.last_activity_at !== null &&
+          (typeof r?.last_activity_at !== "string" ||
+            !ISO_DATE.test(r.last_activity_at))
+        )
+          fail(`${at}.last_activity_at not ISO-8601|null`);
+        checkBoards(r?.leaderboards, `${at}.leaderboards`);
+      }
     });
   }
 
-  // contributors (org-wide)
+  if (version === 3) {
+    if (!Array.isArray(root.recent)) fail("recent not an array");
+    else {
+      root.recent.forEach((/** @type {any} */ e, /** @type {number} */ i) => {
+        const at = `recent[${i}]`;
+        if (typeof e?.login !== "string") fail(`${at}.login not a string`);
+        if (typeof e?.repo !== "string") fail(`${at}.repo not a string`);
+        if (!RECENT_TYPES.has(e?.type)) fail(`${at}.type unknown: ${e?.type}`);
+        if (typeof e?.occurred_at !== "string" || !ISO_DATE.test(e.occurred_at))
+          fail(`${at}.occurred_at not ISO-8601`);
+      });
+    }
+  }
+
   if (!Array.isArray(root.contributors)) fail("contributors not an array");
   else {
     root.contributors.forEach(
@@ -92,49 +143,15 @@ export function validateStats(json) {
         if (typeof c?.counts !== "object" || c.counts === null)
           fail(`${at}.counts missing`);
         else {
-          for (const k of COUNT_KEYS) {
+          for (const k of countKeys) {
             if (!Number.isInteger(c.counts[k]))
               fail(`${at}.counts.${k} not an integer`);
           }
         }
-        checkWeekly(c?.weekly, `${at}.weekly`, fail);
+        checkWeekly(c?.weekly, `${at}.weekly`);
       },
     );
   }
 
   return { ok: errors.length === 0, errors };
-}
-
-/**
- * @param {any} totals
- * @param {string} at
- * @param {(msg: string) => void} fail
- */
-function checkTotals(totals, at, fail) {
-  if (typeof totals !== "object" || totals === null) {
-    fail(`${at} missing`);
-    return;
-  }
-  for (const k of ["contributors", ...COUNT_KEYS]) {
-    if (!Number.isInteger(totals[k])) fail(`${at}.${k} not an integer`);
-  }
-}
-
-/**
- * @param {any} weekly
- * @param {string} at
- * @param {(msg: string) => void} fail
- */
-function checkWeekly(weekly, at, fail) {
-  if (!Array.isArray(weekly)) {
-    fail(`${at} not an array`);
-    return;
-  }
-  weekly.forEach((/** @type {any} */ w, /** @type {number} */ j) => {
-    if (typeof w?.week !== "string" || !ISO_WEEK.test(w.week))
-      fail(`${at}[${j}].week not YYYY-Www`);
-    for (const k of COUNT_KEYS) {
-      if (!Number.isInteger(w?.[k])) fail(`${at}[${j}].${k} not an integer`);
-    }
-  });
 }

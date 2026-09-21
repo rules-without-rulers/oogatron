@@ -2,13 +2,14 @@
   "meta": {
     "generated_at": "2026-09-16T21:56:00.629Z",
     "org": "OogaBoogaX",
-    "schema_version": 2
+    "schema_version": 3
   },
   "totals": {
     "contributors": 40,
     "commits": 837,
     "prs": 323,
-    "reviews": 40
+    "reviews": 40,
+    "comments": 0
   },
   "leaderboards": {
     "commits": [
@@ -280,7 +281,8 @@
         "login": "Hero-Gamer",
         "count": 1
       }
-    ]
+    ],
+    "comments": []
   },
   "repos": [
     {
@@ -289,34 +291,351 @@
         "contributors": 40,
         "commits": 837,
         "prs": 323,
-        "reviews": 40
+        "reviews": 40,
+        "comments": 0
       },
       "weekly": [
         {
           "week": "2026-W35",
           "commits": 329,
           "prs": 134,
-          "reviews": 2
+          "reviews": 2,
+          "comments": 0
         },
         {
           "week": "2026-W36",
           "commits": 397,
           "prs": 136,
-          "reviews": 16
+          "reviews": 16,
+          "comments": 0
         },
         {
           "week": "2026-W37",
           "commits": 81,
           "prs": 36,
-          "reviews": 18
+          "reviews": 18,
+          "comments": 0
         },
         {
           "week": "2026-W38",
           "commits": 30,
           "prs": 17,
-          "reviews": 4
+          "reviews": 4,
+          "comments": 0
         }
-      ]
+      ],
+      "last_activity_at": "2026-09-16T21:56:00.629Z",
+      "leaderboards": {
+        "commits": [
+          {
+            "login": "portlandhodl",
+            "count": 369
+          },
+          {
+            "login": "w-s-bitcoin",
+            "count": 203
+          },
+          {
+            "login": "dplusplus1024",
+            "count": 44
+          },
+          {
+            "login": "timechainb",
+            "count": 42
+          },
+          {
+            "login": "MrHodlX",
+            "count": 31
+          },
+          {
+            "login": "ottoz0r",
+            "count": 24
+          },
+          {
+            "login": "pdubl22",
+            "count": 23
+          },
+          {
+            "login": "J25dunn",
+            "count": 13
+          },
+          {
+            "login": "RandyMcMillan",
+            "count": 12
+          },
+          {
+            "login": "itme-brain",
+            "count": 11
+          },
+          {
+            "login": "2140data",
+            "count": 9
+          },
+          {
+            "login": "Hero-Gamer",
+            "count": 8
+          },
+          {
+            "login": "MHODL",
+            "count": 7
+          },
+          {
+            "login": "Rob1Ham",
+            "count": 7
+          },
+          {
+            "login": "Jdelg718",
+            "count": 5
+          },
+          {
+            "login": "email:0ca1dda35e422a0f",
+            "count": 4
+          },
+          {
+            "login": "email:bdb4923572c8ac13",
+            "count": 4
+          },
+          {
+            "login": "BTCMcBoatface",
+            "count": 3
+          },
+          {
+            "login": "email:bed3af55053c78f6",
+            "count": 3
+          },
+          {
+            "login": "SaniExp",
+            "count": 2
+          },
+          {
+            "login": "dani69654",
+            "count": 2
+          },
+          {
+            "login": "rules-without-rulers",
+            "count": 2
+          },
+          {
+            "login": "FNBIP",
+            "count": 1
+          },
+          {
+            "login": "HodlDee",
+            "count": 1
+          },
+          {
+            "login": "csuwildcat",
+            "count": 1
+          },
+          {
+            "login": "doggyballs",
+            "count": 1
+          },
+          {
+            "login": "email:56537ddd43347582",
+            "count": 1
+          },
+          {
+            "login": "email:78da113009979a72",
+            "count": 1
+          },
+          {
+            "login": "hotpixelgroup",
+            "count": 1
+          },
+          {
+            "login": "kaloudis",
+            "count": 1
+          },
+          {
+            "login": "zmeyer44",
+            "count": 1
+          }
+        ],
+        "prs": [
+          {
+            "login": "portlandhodl",
+            "count": 78
+          },
+          {
+            "login": "MrHodlX",
+            "count": 55
+          },
+          {
+            "login": "w-s-bitcoin",
+            "count": 32
+          },
+          {
+            "login": "timechainb",
+            "count": 21
+          },
+          {
+            "login": "ottoz0r",
+            "count": 18
+          },
+          {
+            "login": "J25dunn",
+            "count": 16
+          },
+          {
+            "login": "dplusplus1024",
+            "count": 13
+          },
+          {
+            "login": "Hero-Gamer",
+            "count": 12
+          },
+          {
+            "login": "Rob1Ham",
+            "count": 11
+          },
+          {
+            "login": "itme-brain",
+            "count": 11
+          },
+          {
+            "login": "2140data",
+            "count": 10
+          },
+          {
+            "login": "Jdelg718",
+            "count": 5
+          },
+          {
+            "login": "RandyMcMillan",
+            "count": 4
+          },
+          {
+            "login": "hotpixelgroup",
+            "count": 4
+          },
+          {
+            "login": "FNBIP",
+            "count": 3
+          },
+          {
+            "login": "MiguelMedeiros",
+            "count": 3
+          },
+          {
+            "login": "SaniExp",
+            "count": 3
+          },
+          {
+            "login": "dani69654",
+            "count": 3
+          },
+          {
+            "login": "tmmmemcee",
+            "count": 3
+          },
+          {
+            "login": "BTCMcBoatface",
+            "count": 2
+          },
+          {
+            "login": "HodlDee",
+            "count": 2
+          },
+          {
+            "login": "csuwildcat",
+            "count": 2
+          },
+          {
+            "login": "pdubl22",
+            "count": 2
+          },
+          {
+            "login": "rules-without-rulers",
+            "count": 2
+          },
+          {
+            "login": "zmeyer44",
+            "count": 2
+          },
+          {
+            "login": "Korg1970",
+            "count": 1
+          },
+          {
+            "login": "Shitnobi",
+            "count": 1
+          },
+          {
+            "login": "doggyballs",
+            "count": 1
+          },
+          {
+            "login": "kaloudis",
+            "count": 1
+          },
+          {
+            "login": "mikeinspace",
+            "count": 1
+          },
+          {
+            "login": "unclejim7",
+            "count": 1
+          }
+        ],
+        "reviews": [
+          {
+            "login": "MrHodlX",
+            "count": 21
+          },
+          {
+            "login": "J25dunn",
+            "count": 14
+          },
+          {
+            "login": "portlandhodl",
+            "count": 4
+          },
+          {
+            "login": "Hero-Gamer",
+            "count": 1
+          }
+        ],
+        "comments": []
+      }
+    }
+  ],
+  "recent": [
+    {
+      "login": "portlandhodl",
+      "repo": "entropylab",
+      "type": "commit",
+      "occurred_at": "2026-09-16T21:56:00.629Z"
+    },
+    {
+      "login": "w-s-bitcoin",
+      "repo": "entropylab",
+      "type": "pr",
+      "occurred_at": "2026-09-16T21:56:00.629Z"
+    },
+    {
+      "login": "dplusplus1024",
+      "repo": "entropylab",
+      "type": "review",
+      "occurred_at": "2026-09-16T21:56:00.629Z"
+    },
+    {
+      "login": "timechainb",
+      "repo": "entropylab",
+      "type": "merge",
+      "occurred_at": "2026-09-16T21:56:00.629Z"
+    },
+    {
+      "login": "MrHodlX",
+      "repo": "entropylab",
+      "type": "comment",
+      "occurred_at": "2026-09-16T21:56:00.629Z"
+    },
+    {
+      "login": "ottoz0r",
+      "repo": "entropylab",
+      "type": "commit",
+      "occurred_at": "2026-09-16T21:56:00.629Z"
     }
   ],
   "contributors": [
@@ -329,32 +648,37 @@
       "counts": {
         "commits": 369,
         "prs": 78,
-        "reviews": 4
+        "reviews": 4,
+        "comments": 0
       },
       "weekly": [
         {
           "week": "2026-W35",
           "commits": 111,
           "prs": 34,
-          "reviews": 0
+          "reviews": 0,
+          "comments": 0
         },
         {
           "week": "2026-W36",
           "commits": 229,
           "prs": 40,
-          "reviews": 2
+          "reviews": 2,
+          "comments": 0
         },
         {
           "week": "2026-W37",
           "commits": 21,
           "prs": 2,
-          "reviews": 0
+          "reviews": 0,
+          "comments": 0
         },
         {
           "week": "2026-W38",
           "commits": 8,
           "prs": 2,
-          "reviews": 2
+          "reviews": 2,
+          "comments": 0
         }
       ]
     },
@@ -367,32 +691,37 @@
       "counts": {
         "commits": 203,
         "prs": 32,
-        "reviews": 0
+        "reviews": 0,
+        "comments": 0
       },
       "weekly": [
         {
           "week": "2026-W35",
           "commits": 113,
           "prs": 13,
-          "reviews": 0
+          "reviews": 0,
+          "comments": 0
         },
         {
           "week": "2026-W36",
           "commits": 51,
           "prs": 13,
-          "reviews": 0
+          "reviews": 0,
+          "comments": 0
         },
         {
           "week": "2026-W37",
           "commits": 35,
           "prs": 5,
-          "reviews": 0
+          "reviews": 0,
+          "comments": 0
         },
         {
           "week": "2026-W38",
           "commits": 4,
           "prs": 1,
-          "reviews": 0
+          "reviews": 0,
+          "comments": 0
         }
       ]
     },
@@ -405,32 +734,37 @@
       "counts": {
         "commits": 31,
         "prs": 55,
-        "reviews": 21
+        "reviews": 21,
+        "comments": 0
       },
       "weekly": [
         {
           "week": "2026-W35",
           "commits": 11,
           "prs": 19,
-          "reviews": 0
+          "reviews": 0,
+          "comments": 0
         },
         {
           "week": "2026-W36",
           "commits": 10,
           "prs": 20,
-          "reviews": 13
+          "reviews": 13,
+          "comments": 0
         },
         {
           "week": "2026-W37",
           "commits": 5,
           "prs": 9,
-          "reviews": 7
+          "reviews": 7,
+          "comments": 0
         },
         {
           "week": "2026-W38",
           "commits": 5,
           "prs": 7,
-          "reviews": 1
+          "reviews": 1,
+          "comments": 0
         }
       ]
     },
@@ -443,32 +777,37 @@
       "counts": {
         "commits": 8,
         "prs": 12,
-        "reviews": 1
+        "reviews": 1,
+        "comments": 0
       },
       "weekly": [
         {
           "week": "2026-W35",
           "commits": 0,
           "prs": 0,
-          "reviews": 0
+          "reviews": 0,
+          "comments": 0
         },
         {
           "week": "2026-W36",
           "commits": 2,
           "prs": 6,
-          "reviews": 0
+          "reviews": 0,
+          "comments": 0
         },
         {
           "week": "2026-W37",
           "commits": 6,
           "prs": 4,
-          "reviews": 1
+          "reviews": 1,
+          "comments": 0
         },
         {
           "week": "2026-W38",
           "commits": 0,
           "prs": 2,
-          "reviews": 0
+          "reviews": 0,
+          "comments": 0
         }
       ]
     },
@@ -481,20 +820,23 @@
       "counts": {
         "commits": 44,
         "prs": 13,
-        "reviews": 0
+        "reviews": 0,
+        "comments": 0
       },
       "weekly": [
         {
           "week": "2026-W35",
           "commits": 16,
           "prs": 6,
-          "reviews": 0
+          "reviews": 0,
+          "comments": 0
         },
         {
           "week": "2026-W36",
           "commits": 28,
           "prs": 7,
-          "reviews": 0
+          "reviews": 0,
+          "comments": 0
         }
       ]
     },
@@ -507,32 +849,37 @@
       "counts": {
         "commits": 42,
         "prs": 21,
-        "reviews": 0
+        "reviews": 0,
+        "comments": 0
       },
       "weekly": [
         {
           "week": "2026-W35",
           "commits": 12,
           "prs": 7,
-          "reviews": 0
+          "reviews": 0,
+          "comments": 0
         },
         {
           "week": "2026-W36",
           "commits": 12,
           "prs": 7,
-          "reviews": 0
+          "reviews": 0,
+          "comments": 0
         },
         {
           "week": "2026-W37",
           "commits": 7,
           "prs": 4,
-          "reviews": 0
+          "reviews": 0,
+          "comments": 0
         },
         {
           "week": "2026-W38",
           "commits": 11,
           "prs": 3,
-          "reviews": 0
+          "reviews": 0,
+          "comments": 0
         }
       ]
     },
@@ -545,32 +892,37 @@
       "counts": {
         "commits": 13,
         "prs": 16,
-        "reviews": 14
+        "reviews": 14,
+        "comments": 0
       },
       "weekly": [
         {
           "week": "2026-W35",
           "commits": 1,
           "prs": 3,
-          "reviews": 2
+          "reviews": 2,
+          "comments": 0
         },
         {
           "week": "2026-W36",
           "commits": 7,
           "prs": 7,
-          "reviews": 1
+          "reviews": 1,
+          "comments": 0
         },
         {
           "week": "2026-W37",
           "commits": 3,
           "prs": 6,
-          "reviews": 10
+          "reviews": 10,
+          "comments": 0
         },
         {
           "week": "2026-W38",
           "commits": 2,
           "prs": 0,
-          "reviews": 1
+          "reviews": 1,
+          "comments": 0
         }
       ]
     },
@@ -583,20 +935,23 @@
       "counts": {
         "commits": 24,
         "prs": 18,
-        "reviews": 0
+        "reviews": 0,
+        "comments": 0
       },
       "weekly": [
         {
           "week": "2026-W35",
           "commits": 16,
           "prs": 11,
-          "reviews": 0
+          "reviews": 0,
+          "comments": 0
         },
         {
           "week": "2026-W36",
           "commits": 8,
           "prs": 7,
-          "reviews": 0
+          "reviews": 0,
+          "comments": 0
         }
       ]
     },
@@ -609,20 +964,23 @@
       "counts": {
         "commits": 12,
         "prs": 4,
-        "reviews": 0
+        "reviews": 0,
+        "comments": 0
       },
       "weekly": [
         {
           "week": "2026-W35",
           "commits": 9,
           "prs": 3,
-          "reviews": 0
+          "reviews": 0,
+          "comments": 0
         },
         {
           "week": "2026-W36",
           "commits": 3,
           "prs": 1,
-          "reviews": 0
+          "reviews": 0,
+          "comments": 0
         }
       ]
     },
@@ -635,20 +993,23 @@
       "counts": {
         "commits": 11,
         "prs": 11,
-        "reviews": 0
+        "reviews": 0,
+        "comments": 0
       },
       "weekly": [
         {
           "week": "2026-W35",
           "commits": 10,
           "prs": 9,
-          "reviews": 0
+          "reviews": 0,
+          "comments": 0
         },
         {
           "week": "2026-W36",
           "commits": 1,
           "prs": 2,
-          "reviews": 0
+          "reviews": 0,
+          "comments": 0
         }
       ]
     },
@@ -661,14 +1022,16 @@
       "counts": {
         "commits": 23,
         "prs": 2,
-        "reviews": 0
+        "reviews": 0,
+        "comments": 0
       },
       "weekly": [
         {
           "week": "2026-W36",
           "commits": 23,
           "prs": 2,
-          "reviews": 0
+          "reviews": 0,
+          "comments": 0
         }
       ]
     },
@@ -681,20 +1044,23 @@
       "counts": {
         "commits": 9,
         "prs": 10,
-        "reviews": 0
+        "reviews": 0,
+        "comments": 0
       },
       "weekly": [
         {
           "week": "2026-W35",
           "commits": 8,
           "prs": 9,
-          "reviews": 0
+          "reviews": 0,
+          "comments": 0
         },
         {
           "week": "2026-W36",
           "commits": 1,
           "prs": 1,
-          "reviews": 0
+          "reviews": 0,
+          "comments": 0
         }
       ]
     },
@@ -707,26 +1073,30 @@
       "counts": {
         "commits": 3,
         "prs": 2,
-        "reviews": 0
+        "reviews": 0,
+        "comments": 0
       },
       "weekly": [
         {
           "week": "2026-W35",
           "commits": 2,
           "prs": 1,
-          "reviews": 0
+          "reviews": 0,
+          "comments": 0
         },
         {
           "week": "2026-W36",
           "commits": 0,
           "prs": 0,
-          "reviews": 0
+          "reviews": 0,
+          "comments": 0
         },
         {
           "week": "2026-W37",
           "commits": 1,
           "prs": 1,
-          "reviews": 0
+          "reviews": 0,
+          "comments": 0
         }
       ]
     },
@@ -739,14 +1109,16 @@
       "counts": {
         "commits": 7,
         "prs": 11,
-        "reviews": 0
+        "reviews": 0,
+        "comments": 0
       },
       "weekly": [
         {
           "week": "2026-W36",
           "commits": 7,
           "prs": 11,
-          "reviews": 0
+          "reviews": 0,
+          "comments": 0
         }
       ]
     },
@@ -759,20 +1131,23 @@
       "counts": {
         "commits": 5,
         "prs": 5,
-        "reviews": 0
+        "reviews": 0,
+        "comments": 0
       },
       "weekly": [
         {
           "week": "2026-W35",
           "commits": 3,
           "prs": 5,
-          "reviews": 0
+          "reviews": 0,
+          "comments": 0
         },
         {
           "week": "2026-W36",
           "commits": 2,
           "prs": 0,
-          "reviews": 0
+          "reviews": 0,
+          "comments": 0
         }
       ]
     },
@@ -785,26 +1160,30 @@
       "counts": {
         "commits": 2,
         "prs": 3,
-        "reviews": 0
+        "reviews": 0,
+        "comments": 0
       },
       "weekly": [
         {
           "week": "2026-W35",
           "commits": 1,
           "prs": 1,
-          "reviews": 0
+          "reviews": 0,
+          "comments": 0
         },
         {
           "week": "2026-W36",
           "commits": 1,
           "prs": 2,
-          "reviews": 0
+          "reviews": 0,
+          "comments": 0
         },
         {
           "week": "2026-W37",
           "commits": 0,
           "prs": 0,
-          "reviews": 0
+          "reviews": 0,
+          "comments": 0
         }
       ]
     },
@@ -817,26 +1196,30 @@
       "counts": {
         "commits": 1,
         "prs": 4,
-        "reviews": 0
+        "reviews": 0,
+        "comments": 0
       },
       "weekly": [
         {
           "week": "2026-W36",
           "commits": 0,
           "prs": 2,
-          "reviews": 0
+          "reviews": 0,
+          "comments": 0
         },
         {
           "week": "2026-W37",
           "commits": 1,
           "prs": 2,
-          "reviews": 0
+          "reviews": 0,
+          "comments": 0
         },
         {
           "week": "2026-W38",
           "commits": 0,
           "prs": 0,
-          "reviews": 0
+          "reviews": 0,
+          "comments": 0
         }
       ]
     },
@@ -849,14 +1232,16 @@
       "counts": {
         "commits": 7,
         "prs": 0,
-        "reviews": 0
+        "reviews": 0,
+        "comments": 0
       },
       "weekly": [
         {
           "week": "2026-W35",
           "commits": 7,
           "prs": 0,
-          "reviews": 0
+          "reviews": 0,
+          "comments": 0
         }
       ]
     },
@@ -869,20 +1254,23 @@
       "counts": {
         "commits": 2,
         "prs": 2,
-        "reviews": 0
+        "reviews": 0,
+        "comments": 0
       },
       "weekly": [
         {
           "week": "2026-W35",
           "commits": 2,
           "prs": 2,
-          "reviews": 0
+          "reviews": 0,
+          "comments": 0
         },
         {
           "week": "2026-W37",
           "commits": 0,
           "prs": 0,
-          "reviews": 0
+          "reviews": 0,
+          "comments": 0
         }
       ]
     },
@@ -895,14 +1283,16 @@
       "counts": {
         "commits": 1,
         "prs": 2,
-        "reviews": 0
+        "reviews": 0,
+        "comments": 0
       },
       "weekly": [
         {
           "week": "2026-W36",
           "commits": 1,
           "prs": 2,
-          "reviews": 0
+          "reviews": 0,
+          "comments": 0
         }
       ]
     },
@@ -915,20 +1305,23 @@
       "counts": {
         "commits": 2,
         "prs": 3,
-        "reviews": 0
+        "reviews": 0,
+        "comments": 0
       },
       "weekly": [
         {
           "week": "2026-W35",
           "commits": 0,
           "prs": 2,
-          "reviews": 0
+          "reviews": 0,
+          "comments": 0
         },
         {
           "week": "2026-W36",
           "commits": 2,
           "prs": 1,
-          "reviews": 0
+          "reviews": 0,
+          "comments": 0
         }
       ]
     },
@@ -941,20 +1334,23 @@
       "counts": {
         "commits": 1,
         "prs": 3,
-        "reviews": 0
+        "reviews": 0,
+        "comments": 0
       },
       "weekly": [
         {
           "week": "2026-W35",
           "commits": 0,
           "prs": 2,
-          "reviews": 0
+          "reviews": 0,
+          "comments": 0
         },
         {
           "week": "2026-W36",
           "commits": 1,
           "prs": 1,
-          "reviews": 0
+          "reviews": 0,
+          "comments": 0
         }
       ]
     },
@@ -967,14 +1363,16 @@
       "counts": {
         "commits": 1,
         "prs": 2,
-        "reviews": 0
+        "reviews": 0,
+        "comments": 0
       },
       "weekly": [
         {
           "week": "2026-W35",
           "commits": 1,
           "prs": 2,
-          "reviews": 0
+          "reviews": 0,
+          "comments": 0
         }
       ]
     },
@@ -987,14 +1385,16 @@
       "counts": {
         "commits": 4,
         "prs": 0,
-        "reviews": 0
+        "reviews": 0,
+        "comments": 0
       },
       "weekly": [
         {
           "week": "2026-W36",
           "commits": 4,
           "prs": 0,
-          "reviews": 0
+          "reviews": 0,
+          "comments": 0
         }
       ]
     },
@@ -1007,14 +1407,16 @@
       "counts": {
         "commits": 4,
         "prs": 0,
-        "reviews": 0
+        "reviews": 0,
+        "comments": 0
       },
       "weekly": [
         {
           "week": "2026-W35",
           "commits": 4,
           "prs": 0,
-          "reviews": 0
+          "reviews": 0,
+          "comments": 0
         }
       ]
     },
@@ -1027,20 +1429,23 @@
       "counts": {
         "commits": 0,
         "prs": 3,
-        "reviews": 0
+        "reviews": 0,
+        "comments": 0
       },
       "weekly": [
         {
           "week": "2026-W35",
           "commits": 0,
           "prs": 1,
-          "reviews": 0
+          "reviews": 0,
+          "comments": 0
         },
         {
           "week": "2026-W38",
           "commits": 0,
           "prs": 2,
-          "reviews": 0
+          "reviews": 0,
+          "comments": 0
         }
       ]
     },
@@ -1053,14 +1458,16 @@
       "counts": {
         "commits": 0,
         "prs": 3,
-        "reviews": 0
+        "reviews": 0,
+        "comments": 0
       },
       "weekly": [
         {
           "week": "2026-W35",
           "commits": 0,
           "prs": 3,
-          "reviews": 0
+          "reviews": 0,
+          "comments": 0
         }
       ]
     },
@@ -1073,20 +1480,23 @@
       "counts": {
         "commits": 3,
         "prs": 0,
-        "reviews": 0
+        "reviews": 0,
+        "comments": 0
       },
       "weekly": [
         {
           "week": "2026-W36",
           "commits": 2,
           "prs": 0,
-          "reviews": 0
+          "reviews": 0,
+          "comments": 0
         },
         {
           "week": "2026-W37",
           "commits": 1,
           "prs": 0,
-          "reviews": 0
+          "reviews": 0,
+          "comments": 0
         }
       ]
     },
@@ -1099,14 +1509,16 @@
       "counts": {
         "commits": 1,
         "prs": 2,
-        "reviews": 0
+        "reviews": 0,
+        "comments": 0
       },
       "weekly": [
         {
           "week": "2026-W36",
           "commits": 1,
           "prs": 2,
-          "reviews": 0
+          "reviews": 0,
+          "comments": 0
         }
       ]
     },
@@ -1119,14 +1531,16 @@
       "counts": {
         "commits": 1,
         "prs": 1,
-        "reviews": 0
+        "reviews": 0,
+        "comments": 0
       },
       "weekly": [
         {
           "week": "2026-W36",
           "commits": 1,
           "prs": 1,
-          "reviews": 0
+          "reviews": 0,
+          "comments": 0
         }
       ]
     },
@@ -1139,14 +1553,16 @@
       "counts": {
         "commits": 1,
         "prs": 1,
-        "reviews": 0
+        "reviews": 0,
+        "comments": 0
       },
       "weekly": [
         {
           "week": "2026-W37",
           "commits": 1,
           "prs": 1,
-          "reviews": 0
+          "reviews": 0,
+          "comments": 0
         }
       ]
     },
@@ -1159,14 +1575,16 @@
       "counts": {
         "commits": 0,
         "prs": 1,
-        "reviews": 0
+        "reviews": 0,
+        "comments": 0
       },
       "weekly": [
         {
           "week": "2026-W36",
           "commits": 0,
           "prs": 1,
-          "reviews": 0
+          "reviews": 0,
+          "comments": 0
         }
       ]
     },
@@ -1179,14 +1597,16 @@
       "counts": {
         "commits": 0,
         "prs": 0,
-        "reviews": 0
+        "reviews": 0,
+        "comments": 0
       },
       "weekly": [
         {
           "week": "2026-W35",
           "commits": 0,
           "prs": 0,
-          "reviews": 0
+          "reviews": 0,
+          "comments": 0
         }
       ]
     },
@@ -1199,14 +1619,16 @@
       "counts": {
         "commits": 0,
         "prs": 0,
-        "reviews": 0
+        "reviews": 0,
+        "comments": 0
       },
       "weekly": [
         {
           "week": "2026-W36",
           "commits": 0,
           "prs": 0,
-          "reviews": 0
+          "reviews": 0,
+          "comments": 0
         }
       ]
     },
@@ -1219,14 +1641,16 @@
       "counts": {
         "commits": 0,
         "prs": 1,
-        "reviews": 0
+        "reviews": 0,
+        "comments": 0
       },
       "weekly": [
         {
           "week": "2026-W37",
           "commits": 0,
           "prs": 1,
-          "reviews": 0
+          "reviews": 0,
+          "comments": 0
         }
       ]
     },
@@ -1239,14 +1663,16 @@
       "counts": {
         "commits": 0,
         "prs": 1,
-        "reviews": 0
+        "reviews": 0,
+        "comments": 0
       },
       "weekly": [
         {
           "week": "2026-W35",
           "commits": 0,
           "prs": 1,
-          "reviews": 0
+          "reviews": 0,
+          "comments": 0
         }
       ]
     },
@@ -1259,14 +1685,16 @@
       "counts": {
         "commits": 1,
         "prs": 0,
-        "reviews": 0
+        "reviews": 0,
+        "comments": 0
       },
       "weekly": [
         {
           "week": "2026-W35",
           "commits": 1,
           "prs": 0,
-          "reviews": 0
+          "reviews": 0,
+          "comments": 0
         }
       ]
     },
@@ -1279,14 +1707,16 @@
       "counts": {
         "commits": 1,
         "prs": 0,
-        "reviews": 0
+        "reviews": 0,
+        "comments": 0
       },
       "weekly": [
         {
           "week": "2026-W35",
           "commits": 1,
           "prs": 0,
-          "reviews": 0
+          "reviews": 0,
+          "comments": 0
         }
       ]
     },
@@ -1299,14 +1729,16 @@
       "counts": {
         "commits": 0,
         "prs": 1,
-        "reviews": 0
+        "reviews": 0,
+        "comments": 0
       },
       "weekly": [
         {
           "week": "2026-W37",
           "commits": 0,
           "prs": 1,
-          "reviews": 0
+          "reviews": 0,
+          "comments": 0
         }
       ]
     },
@@ -1319,14 +1751,16 @@
       "counts": {
         "commits": 0,
         "prs": 0,
-        "reviews": 0
+        "reviews": 0,
+        "comments": 0
       },
       "weekly": [
         {
           "week": "2026-W37",
           "commits": 0,
           "prs": 0,
-          "reviews": 0
+          "reviews": 0,
+          "comments": 0
         }
       ]
     }

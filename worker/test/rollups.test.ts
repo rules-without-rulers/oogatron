@@ -42,6 +42,33 @@ describe("recomputeRollups", () => {
     ).first<{ count: number }>();
     expect(after!.count).toBe(3);
   });
+
+  it("excludes a merge's own commit in the same repo, keeps it elsewhere, tolerates null oids", async () => {
+    await env.DB.batch([
+      env.DB.prepare(
+        "INSERT INTO contributors (id, login, is_bot) VALUES (1, 'alice', 0), (2, 'erik', 0)",
+      ),
+      env.DB.prepare(
+        `INSERT INTO activity_events (repo, contributor_id, type, external_id, occurred_at, payload) VALUES
+         ('entropylab', 1, 'commit', 'oid-1', '2026-01-10T10:00:00Z', NULL),
+         ('entropylab', 2, 'merge', 'merge:pr1', '2026-01-10T10:01:00Z', '{"prNumber":1,"mergeCommit":"oid-1"}'),
+         ('bedrock',    1, 'commit', 'oid-1', '2026-01-10T10:00:00Z', NULL),
+         ('entropylab', 2, 'merge', 'merge:pr2', '2026-01-11T10:00:00Z', '{"prNumber":2,"mergeCommit":null}'),
+         ('entropylab', 1, 'commit', 'oid-2', '2026-01-11T09:00:00Z', NULL)`,
+      ),
+    ]);
+    await recomputeRollups(env.DB);
+    const rows = await env.DB.prepare(
+      "SELECT repo, type, SUM(count) AS n FROM daily_rollups GROUP BY repo, type ORDER BY repo, type",
+    ).all<{ repo: string; type: string; n: number }>();
+    expect(rows.results).toEqual([
+      // bedrock's identical oid is untouched: the exclusion is repo-scoped.
+      { repo: "bedrock", type: "commit", n: 1 },
+      // entropylab keeps oid-2 only; oid-1 folded into merge:pr1's credit.
+      { repo: "entropylab", type: "commit", n: 1 },
+      { repo: "entropylab", type: "merge", n: 2 },
+    ]);
+  });
 });
 
 describe("isoWeek", () => {

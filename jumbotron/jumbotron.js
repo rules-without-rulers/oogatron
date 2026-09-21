@@ -51,21 +51,34 @@ export function createJumbotronDisplay(options = {}) {
   let dirty = true;
   let animated = false;
 
-  // Repo boards are capped so the full cycle stays under ~90s if the org grows.
+  // Active-repo boards are capped so the cycle stays bounded as the org grows.
   const MAX_REPO_BOARDS = 6;
+  const ACTIVE_WINDOW_MS = 7 * 24 * 3600 * 1000;
 
-  /** Rotation cycle, rebuilt per model: org totals, per-repo totals, leaderboards. */
+  /** Repos idle for a week disappear from the rotation entirely. */
+  function activeRepos() {
+    if (!model) return [];
+    const ref = Date.parse(model.generatedAt) || Date.now();
+    return model.repos
+      .filter(
+        (r) =>
+          r.lastActivityAt &&
+          ref - Date.parse(r.lastActivityAt) <= ACTIVE_WINDOW_MS,
+      )
+      .slice(0, MAX_REPO_BOARDS);
+  }
+
+  /** Rotation, rebuilt per model: recent feed, org totals, then each active
+   * repo's summary followed by its four leaderboards. */
   function cycle() {
     /** @type {ViewRef[]} */
-    const c = [{ name: "totals" }];
-    for (const repo of model?.repos.slice(0, MAX_REPO_BOARDS) ?? []) {
+    const c = [{ name: "recent" }, { name: "totals" }];
+    for (const repo of activeRepos()) {
       c.push({ name: "repo", params: { name: repo.name } });
+      for (const type of ["commits", "prs", "reviews", "comments"]) {
+        c.push({ name: "leaderboard", params: { type, repo: repo.name } });
+      }
     }
-    c.push(
-      { name: "leaderboard", params: { type: "commits" } },
-      { name: "leaderboard", params: { type: "prs" } },
-      { name: "leaderboard", params: { type: "reviews" } },
-    );
     return c;
   }
 
@@ -94,7 +107,7 @@ export function createJumbotronDisplay(options = {}) {
     },
 
     /**
-     * @param {string} name 'totals' | 'repo' | 'leaderboard'
+     * @param {string} name 'recent' | 'totals' | 'repo' | 'leaderboard'
      * @param {Record<string, unknown>} [params] e.g. {type} or {name}
      */
     setView(name, params) {

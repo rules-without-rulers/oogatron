@@ -26,6 +26,7 @@ export const DEFAULT_PALETTE = {
   commits: "#46ff70", // matrix green — the in-world screen glow
   prs: "#3fd1c5", // lab console screen teal
   reviews: "#6f9fca", // screen blue / rare tier
+  comments: "#f5c542", // race-HUD player gold
   danger: "#e5533d", // --danger
   bezel: "#8a6236", // WOOD
   bezelLight: "#a9773f", // PLANK
@@ -186,7 +187,17 @@ function header(ctx, W, palette, title, right) {
   ctx.fillRect(0, 12, W, 1);
 }
 
-const TYPE_COLOR = { commits: "commits", prs: "prs", reviews: "reviews" };
+const TYPE_COLOR = {
+  commits: "commits",
+  prs: "prs",
+  reviews: "reviews",
+  comments: "comments",
+  commit: "commits",
+  pr: "prs",
+  review: "reviews",
+  merge: "accent",
+  comment: "comments",
+};
 
 // ---------------------------------------------------------------------------
 // Views. Each renders the full board; signature:
@@ -195,6 +206,7 @@ const TYPE_COLOR = { commits: "commits", prs: "prs", reviews: "reviews" };
 
 /** @type {Record<string, Function>} */
 export const VIEWS = {
+  recent: renderRecent,
   totals: renderTotals,
   repo: renderRepo,
   leaderboard: renderLeaderboard,
@@ -222,13 +234,15 @@ function renderTotalsBoard(
     ["COMMITS", totals.commits, palette.commits],
     ["PRS", totals.prs, palette.prs],
     ["REVIEWS", totals.reviews, palette.reviews],
+    ["COMMENTS", totals.comments, palette.comments],
   ];
-  let y = 20;
+  // Five rows: y=16 step 16 keeps the last scale-2 numeral inside the board.
+  let y = 16;
   for (const [label, value, color] of rows) {
     drawText(ctx, String(label), 6, y + 3, palette.dim, 1);
     const v = String(value);
     drawText(ctx, v, W - 66 - measureText(v, 2), y, color, 2);
-    y += 18;
+    y += 16;
   }
 
   // weekly activity sparkline, right side
@@ -288,10 +302,15 @@ export function renderRepo(ctx, W, H, model, params, palette) {
 
 export function renderLeaderboard(ctx, W, H, model, params, palette) {
   const type = params?.type ?? "commits";
-  const board = model.leaderboards[type] ?? [];
+  // Leaderboards are per repo now; without a repo param the org boards show.
+  const repo = params?.repo
+    ? model.repos.find((r) => r.name === params.repo)
+    : null;
+  const board = (repo ? repo.leaderboards : model.leaderboards)[type] ?? [];
   const color = palette[TYPE_COLOR[type] ?? "accent"];
   clearBoard(ctx, W, H, palette);
-  header(ctx, W, palette, `TOP ${type.toUpperCase()}`, model.latestWeek ?? "");
+  const title = `${repo ? repo.name.toUpperCase() + " " : ""}TOP ${type.toUpperCase()}`;
+  header(ctx, W, palette, title, model.latestWeek ?? "");
 
   const top = board.slice(0, 7);
   const maxV = Math.max(...top.map((e) => e.count), 1);
@@ -317,5 +336,37 @@ export function renderLeaderboard(ctx, W, H, model, params, palette) {
     drawText(ctx, v, W - 4 - measureText(v, 1), y, color, 1);
     y += 13;
   });
+  return false;
+}
+
+/** Short relative age for the recent feed; renders against wall-clock now. */
+export function recentAge(iso, nowMs = Date.now()) {
+  const ms = nowMs - Date.parse(iso);
+  if (!Number.isFinite(ms) || ms < 0) return "NOW";
+  const minutes = Math.floor(ms / 60000);
+  if (minutes < 60) return `${minutes}M`;
+  const hours = Math.floor(minutes / 60);
+  if (hours < 24) return `${hours}H`;
+  return `${Math.floor(hours / 24)}D`;
+}
+
+/** The opening board: who did what where, newest first. */
+export function renderRecent(ctx, W, H, model, _params, palette) {
+  clearBoard(ctx, W, H, palette);
+  header(ctx, W, palette, "RECENT", model.latestWeek ?? "");
+  if (model.recent.length === 0) {
+    drawText(ctx, "NO ACTIVITY", 52, 48, palette.dim, 1);
+    return false;
+  }
+  let y = 15;
+  for (const e of model.recent.slice(0, 11)) {
+    const color = palette[TYPE_COLOR[e.type] ?? "accent"];
+    drawText(ctx, fitText(e.login.toUpperCase(), 60, 1), 4, y, palette.text, 1);
+    drawText(ctx, fitText(e.repo.toUpperCase(), 54, 1), 68, y, palette.dim, 1);
+    drawText(ctx, fitText(e.type.toUpperCase(), 42, 1), 126, y, color, 1);
+    const age = recentAge(e.occurredAt);
+    drawText(ctx, age, W - 4 - measureText(age, 1), y, palette.dim, 1);
+    y += 8;
+  }
   return false;
 }

@@ -1,5 +1,7 @@
 export const OWNER = "OogaBoogaX";
+// Default meta version for v1-route responses; /v2/stats serves schema 3.
 export const SCHEMA_VERSION = 2;
+export const SCHEMA_VERSION_V3 = 3;
 
 // Repos are discovered from the org (public, non-fork, non-archived); list
 // short names here to keep specific repos off the jumbotron anyway.

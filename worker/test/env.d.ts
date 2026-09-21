@@ -10,13 +10,21 @@ declare module "cloudflare:test" {
 declare module "*/jumbotron/data.js" {
   export function parseStats(json: unknown): {
     org: string;
-    totals: Record<string, unknown> & { contributors: number };
+    totals: Record<string, number> & { contributors: number };
     leaderboards: Record<string, Array<{ login: string; count: number }>>;
     repos: Array<{
       name: string;
       totals: Record<string, number> & { contributors: number };
       weekly: Array<{ week: string }>;
+      lastActivityAt: string | null;
+      leaderboards: Record<string, Array<{ login: string; count: number }>>;
       weeklyTotals: Array<{ week: string; total: number }>;
+    }>;
+    recent: Array<{
+      login: string;
+      repo: string;
+      type: string;
+      occurredAt: string;
     }>;
     contributors: Array<{ login: string; weekly: Array<{ week: string }> }>;
     byLogin: Map<string, unknown>;
@@ -48,6 +56,7 @@ declare module "*/jumbotron/views.js" {
     maxWidth: number,
     scale?: number,
   ): string;
+  export function recentAge(iso: string, nowMs?: number): string;
   export const VIEWS: Record<
     string,
     (

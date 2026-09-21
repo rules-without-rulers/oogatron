@@ -85,7 +85,8 @@ CREATE TABLE activity_events (
   id             INTEGER PRIMARY KEY,
   repo           TEXT NOT NULL DEFAULT 'entropylab',  -- short name; owner is the org constant
   contributor_id INTEGER NOT NULL REFERENCES contributors(id),
-  type           TEXT NOT NULL CHECK (type IN ('commit','pr','review')),
+  type           TEXT NOT NULL CHECK (type IN
+                   ('commit','pr','review','merge','comment_issue','comment_review','comment_commit')),
   external_id    TEXT NOT NULL,           -- commit SHA / GraphQL node id
   occurred_at    TEXT NOT NULL,           -- ISO 8601
   payload        TEXT,                    -- JSON: title, PR number, additions/deletions, state…
@@ -115,7 +116,7 @@ CREATE TABLE sync_runs (
 
 CREATE TABLE sync_state (                 -- per-repo per-source incremental cursors
   repo       TEXT NOT NULL,               -- repo short name; '*' holds the rotation pointer
-  source     TEXT NOT NULL,               -- 'commits' | 'prs' | 'rotation'
+  source     TEXT NOT NULL,               -- 'commits' | 'prs' | 'issue_comments' | 'commit_comments' | 'rotation'
   cursor     TEXT,                        -- last seen timestamp or GraphQL cursor
   updated_at TEXT NOT NULL,
   PRIMARY KEY (repo, source)
@@ -152,7 +153,14 @@ CREATE TABLE repos (                      -- discovered org repos (discovery cac
     email (never store the raw email in `login`).
   - `pr` — all pull requests, any state, by author.
   - `review` — review submissions on every PR, by reviewer.
-  - Comments are deliberately **not** tracked (dropped in schema_version 2).
+  - `merge` — every merged PR, credited to `mergedBy` (whoever pressed the
+    button). The payload records the PR's `mergeCommit` oid; rollups exclude
+    that auto-generated commit so a merge is exactly one credit (for squash
+    merges this shifts the squashed content commit's credit to the merger —
+    an accepted, documented rule).
+  - `comment_issue` / `comment_review` / `comment_commit` — the three GitHub
+    comment surfaces (restored in schema_version 3; served summed as one
+    `comments` number).
 - **Bots and CI:** entropylab's CI commits build artifacts back to `rock`.
   Maintain a small config list of bot logins/patterns (e.g. `*[bot]`, the CI
   committer); mark them `is_bot = 1`. Bots are stored but **excluded from all
@@ -164,11 +172,26 @@ CREATE TABLE repos (                      -- discovered org repos (discovery cac
 ### HTTP API (versioned, frozen contract)
 
 All responses JSON, CORS `*` for GET, cached in KV (60 s TTL) keyed by full URL.
-`meta` appears on every response: `{ "generated_at": ISO8601, "org": "OogaBoogaX", "schema_version": 2 }`.
+`meta` appears on every response with the route's schema_version.
 
-- `GET /v1/stats` — the everything payload (this is also the snapshot format).
-  Top-level `totals`/`leaderboards`/`contributors` are **org-wide**; `repos`
-  carries the per-repo breakdown, ordered by total activity:
+Two stats routes are served concurrently from **one shared assembly**
+(`api/stats.ts` `assembleModel` + `shapeV2`/`shapeV3`), so site and worker
+never need lockstep deploys:
+
+- `GET /v1/stats` — **schema_version 2**, the pre-comments contract, kept
+  byte-shaped for older site builds: org `totals`/`leaderboards {commits,prs,
+  reviews}`/`contributors` + `repos [{name, totals, weekly}]`. Merges fold
+  into commits (deduped); comment activity is invisible here, including in
+  the active-contributor counts.
+- `GET /v2/stats` — **schema_version 3**, the snapshot format and what the
+  island consumes: adds `comments` to every totals/weekly/counts block and a
+  `comments` leaderboard; each `repos[]` entry gains `last_activity_at` (the
+  jumbotron hides repos idle >7 days) and its own per-repo `leaderboards
+  {commits,prs,reviews,comments}`; plus `recent` — the newest 12 events
+  org-wide as `[{login, repo, type: commit|pr|review|merge|comment,
+  occurred_at}]`, merge-commit-deduped and bot-filtered.
+
+Legacy v2 example shape (see the v2 contract test for the source of truth):
 
 ```json
 {
@@ -203,7 +226,7 @@ All responses JSON, CORS `*` for GET, cached in KV (60 s TTL) keyed by full URL.
 - `GET /v1/health` — last sync run status + row counts.
 - `POST /admin/backfill` — bearer-token protected (`ADMIN_TOKEN` secret).
 
-**Contract rules:** additive changes only within `schema_version: 2`; the
+**Contract rules:** additive changes only within a schema_version; the
 `contributors` array is always complete (the org has few enough humans that
 this stays small), which is what lets snapshot mode filter per-user entirely
 client-side. "Total contributors" means the union of humans with ≥1 event of
@@ -326,8 +349,8 @@ Default `*.workers.dev` URL is fine; custom domain later if desired.
 - Webhooks on tracked repos (needs repo admin; the per-minute cron covers
   freshness; the router leaves room for a future `POST /webhook`).
 - Any React/Next.js UI, any framework in the jumbotron.
-- Comment tracking (dropped in schema_version 2; re-syncing from GitHub could
-  bring it back, but nothing displays it).
 - Per-contributor-per-repo stat splits (contributor identity stays org-global).
+- Retiring `/v1/stats`: keep it until no deployed site build polls it, then
+  fold shapeV2 away.
 - Private data of any kind. Public contributor handles and public activity only,
   matching oogaboogaland's privacy stance.

@@ -20,7 +20,7 @@ export async function cached(
   const gen = (await env.CACHE.get(GEN_KEY)) ?? "0";
   // Prefix tracks the contract's schema_version: bumping it guarantees no
   // stale-shaped body survives a deploy, even within the TTL.
-  const key = `v2:${gen}:${url.pathname}${url.search}`;
+  const key = `v3:${gen}:${url.pathname}${url.search}`;
 
   const hit = await env.CACHE.get(key);
   if (hit !== null) {
