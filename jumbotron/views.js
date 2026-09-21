@@ -27,6 +27,7 @@ export const DEFAULT_PALETTE = {
   prs: "#3fd1c5", // lab console screen teal
   reviews: "#6f9fca", // screen blue / rare tier
   comments: "#f5c542", // race-HUD player gold
+  issues: "#e5533d", // --danger, the open-issue red
   danger: "#e5533d", // --danger
   bezel: "#8a6236", // WOOD
   bezelLight: "#a9773f", // PLANK
@@ -234,15 +235,16 @@ function renderTotalsBoard(
     ["COMMITS", totals.commits, palette.commits],
     ["PRS", totals.prs, palette.prs],
     ["REVIEWS", totals.reviews, palette.reviews],
+    ["ISSUES", totals.issues, palette.issues],
     ["COMMENTS", totals.comments, palette.comments],
   ];
-  // Five rows: y=16 step 16 keeps the last scale-2 numeral inside the board.
-  let y = 16;
+  // Six rows: y=14 step 13 keeps the last scale-2 numeral inside the board.
+  let y = 14;
   for (const [label, value, color] of rows) {
     drawText(ctx, String(label), 6, y + 3, palette.dim, 1);
     const v = String(value);
     drawText(ctx, v, W - 66 - measureText(v, 2), y, color, 2);
-    y += 16;
+    y += 13;
   }
 
   // weekly activity sparkline, right side

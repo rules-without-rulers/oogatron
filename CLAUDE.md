@@ -86,7 +86,7 @@ CREATE TABLE activity_events (
   repo           TEXT NOT NULL DEFAULT 'entropylab',  -- short name; owner is the org constant
   contributor_id INTEGER NOT NULL REFERENCES contributors(id),
   type           TEXT NOT NULL CHECK (type IN
-                   ('commit','pr','review','merge','comment_issue','comment_review','comment_commit')),
+                   ('commit','pr','review','merge','issue','comment_issue','comment_review','comment_commit')),
   external_id    TEXT NOT NULL,           -- commit SHA / GraphQL node id
   occurred_at    TEXT NOT NULL,           -- ISO 8601
   payload        TEXT,                    -- JSON: title, PR number, additions/deletions, state…
@@ -158,6 +158,8 @@ CREATE TABLE repos (                      -- discovered org repos (discovery cac
     that auto-generated commit so a merge is exactly one credit (for squash
     merges this shifts the squashed content commit's credit to the merger —
     an accepted, documented rule).
+  - `issue` — opening an issue, credited to its author (the issues walker
+    sees every issue node anyway, so the event rides along with its comments).
   - `comment_issue` / `comment_review` / `comment_commit` — the three GitHub
     comment surfaces (restored in schema_version 3; served summed as one
     `comments` number).
@@ -184,12 +186,15 @@ never need lockstep deploys:
   into commits (deduped); comment activity is invisible here, including in
   the active-contributor counts.
 - `GET /v2/stats` — **schema_version 3**, the snapshot format and what the
-  island consumes: adds `comments` to every totals/weekly/counts block and a
-  `comments` leaderboard; each `repos[]` entry gains `last_activity_at` (the
-  jumbotron hides repos idle >7 days) and its own per-repo `leaderboards
-  {commits,prs,reviews,comments}`; plus `recent` — the newest 12 events
-  org-wide as `[{login, repo, type: commit|pr|review|merge|comment,
-  occurred_at}]`, merge-commit-deduped and bot-filtered.
+  island consumes: adds `comments` and `issues` to every totals/weekly/counts
+  block and a `comments` leaderboard (issues carry no leaderboard); each
+  `repos[]` entry gains `last_activity_at` (the jumbotron hides repos idle
+  >7 days), its own per-repo `leaderboards {commits,prs,reviews,comments}`,
+  and `contributors [{login, last_seen_at}]` — per-repo last activity, which
+  is what routes each island Ooga to the cave of the repo they contributed
+  to; plus `recent` — the newest 12 events org-wide as `[{login, repo,
+  type: commit|pr|review|merge|issue|comment, occurred_at}]`,
+  merge-commit-deduped and bot-filtered.
 
 Legacy v2 example shape (see the v2 contract test for the source of truth):
 
@@ -349,7 +354,8 @@ Default `*.workers.dev` URL is fine; custom domain later if desired.
 - Webhooks on tracked repos (needs repo admin; the per-minute cron covers
   freshness; the router leaves room for a future `POST /webhook`).
 - Any React/Next.js UI, any framework in the jumbotron.
-- Per-contributor-per-repo stat splits (contributor identity stays org-global).
+- Per-contributor-per-repo COUNT splits (identity stays org-global; per-repo
+  last-activity timestamps shipped in schema 3 are the deliberate exception).
 - Retiring `/v1/stats`: keep it until no deployed site build polls it, then
   fold shapeV2 away.
 - Private data of any kind. Public contributor handles and public activity only,

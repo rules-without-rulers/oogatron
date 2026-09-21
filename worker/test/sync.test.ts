@@ -86,6 +86,7 @@ describe("full sync against recorded GraphQL pages", () => {
       pr: 2,
       review: 1, // APPROVED only: PENDING and the empty-body container are skipped
       merge: 1, // PR #1, credited to erik who pressed the button
+      issue: 1, // issue #10, credited to its opener
       comment_review: 1,
       comment_issue: 4, // PR conversation x2 + issue comments x2
       comment_commit: 1,
@@ -132,11 +133,11 @@ describe("full sync against recorded GraphQL pages", () => {
 
     // Rollups were recomputed, repo-scoped, and the merge commit (...a3, the
     // PR's mergeCommit) was excluded so the merge is one credit, not two:
-    // 13 raw events minus the excluded commit.
+    // 14 raw events minus the excluded commit.
     const rollups = await env.DB.prepare(
       "SELECT SUM(count) AS n FROM daily_rollups WHERE repo = 'entropylab'",
     ).first<{ n: number }>();
-    expect(rollups!.n).toBe(12);
+    expect(rollups!.n).toBe(13);
     const dedupedCommit = await env.DB.prepare(
       `SELECT SUM(count) AS n FROM daily_rollups WHERE type = 'commit'`,
     ).first<{ n: number }>();
@@ -203,6 +204,7 @@ describe("full sync against recorded GraphQL pages", () => {
       pr: 2,
       review: 1,
       merge: 1,
+      issue: 1,
       comment_issue: 4,
       comment_review: 1,
       comment_commit: 1,

@@ -32,24 +32,32 @@ interface LastActivityRow {
   at: string;
 }
 
+interface RepoContributorRow {
+  repo: string;
+  login: string;
+  at: string;
+}
+
 export interface Counts {
   commits: number;
   prs: number;
   reviews: number;
+  issues: number;
   comments: number;
 }
 
 function emptyCounts(): Counts {
-  return { commits: 0, prs: 0, reviews: 0, comments: 0 };
+  return { commits: 0, prs: 0, reviews: 0, issues: 0, comments: 0 };
 }
 
 // Merges fold into commits ("Top Commits" credits the merger; the merge
 // commit itself was excluded at rollup time). All comment surfaces fold into
-// one comments number.
+// one comments number; opening an issue is its own count.
 export function addToCounts(counts: Counts, type: string, n: number): void {
   if (type === "commit" || type === "merge") counts.commits += n;
   else if (type === "pr") counts.prs += n;
   else if (type === "review") counts.reviews += n;
+  else if (type === "issue") counts.issues += n;
   else if (type.startsWith("comment_")) counts.comments += n;
 }
 
@@ -58,6 +66,7 @@ interface WeeklyBucket {
   commits: number;
   prs: number;
   reviews: number;
+  issues: number;
   comments: number;
 }
 
@@ -69,21 +78,22 @@ export function weeklyFrom(
     const week = isoWeek(r.day);
     let b = byWeek.get(week);
     if (!b) {
-      b = { week, commits: 0, prs: 0, reviews: 0, comments: 0 };
+      b = { week, commits: 0, prs: 0, reviews: 0, issues: 0, comments: 0 };
       byWeek.set(week, b);
     }
     if (r.type === "commit" || r.type === "merge") b.commits += r.count;
     else if (r.type === "pr") b.prs += r.count;
     else if (r.type === "review") b.reviews += r.count;
+    else if (r.type === "issue") b.issues += r.count;
     else if (r.type.startsWith("comment_")) b.comments += r.count;
   }
   return [...byWeek.values()].sort((a, b) => (a.week < b.week ? -1 : 1));
 }
 
-// The v2 contract predates comment tracking, so its activity notions ignore
-// comments entirely; v3 counts them.
+// The v2 contract predates comment and issue tracking, so its activity
+// notions ignore both entirely; v3 counts everything.
 const totalV2 = (c: Counts): number => c.commits + c.prs + c.reviews;
-const totalV3 = (c: Counts): number => totalV2(c) + c.comments;
+const totalV3 = (c: Counts): number => totalV2(c) + c.issues + c.comments;
 
 // Recent-feed labels collapse the three comment surfaces into one word.
 const recentType = (type: string): string =>
@@ -94,6 +104,7 @@ interface RepoSlice {
   perContributor: Map<number, Counts>;
   rollups: RollupRow[];
   lastActivityAt: string | null;
+  contributorActivity: Array<{ login: string; last_seen_at: string }>;
 }
 
 interface StatsModel {
@@ -109,36 +120,47 @@ interface StatsModel {
 // One read for both served shapes: /v1/stats (schema 2) and /v2/stats
 // (schema 3) project from this model, so the two contracts can never drift.
 async function assembleModel(env: Env, url: URL): Promise<StatsModel> {
-  const [contribRes, rollupRes, recentRes, lastRes] = await env.DB.batch([
-    env.DB.prepare(
-      `SELECT c.id, c.login, c.display_name, c.avatar_url, c.first_seen_at, c.last_seen_at
+  const [contribRes, rollupRes, recentRes, lastRes, repoContribRes] =
+    await env.DB.batch([
+      env.DB.prepare(
+        `SELECT c.id, c.login, c.display_name, c.avatar_url, c.first_seen_at, c.last_seen_at
        FROM contributors c WHERE 1=1${botFilter(url)}
        ORDER BY c.login`,
-    ),
-    env.DB.prepare(
-      `SELECT r.repo, r.contributor_id, r.day, r.type, r.count
+      ),
+      env.DB.prepare(
+        `SELECT r.repo, r.contributor_id, r.day, r.type, r.count
        FROM daily_rollups r JOIN contributors c ON c.id = r.contributor_id
        WHERE 1=1${botFilter(url)}`,
-    ),
-    // The recent feed reads raw events (rollups are day-grained); the same
-    // merge-commit exclusion keeps a merged PR from showing twice.
-    env.DB.prepare(
-      `SELECT c.login, e.repo, e.type, e.occurred_at
+      ),
+      // The recent feed reads raw events (rollups are day-grained); the same
+      // merge-commit exclusion keeps a merged PR from showing twice.
+      env.DB.prepare(
+        `SELECT c.login, e.repo, e.type, e.occurred_at
        FROM activity_events e JOIN contributors c ON c.id = e.contributor_id
        WHERE ${MERGE_COMMIT_EXCLUSION}${botFilter(url)}
        ORDER BY e.occurred_at DESC LIMIT 12`,
-    ),
-    env.DB.prepare(
-      `SELECT e.repo, MAX(e.occurred_at) AS at
+      ),
+      env.DB.prepare(
+        `SELECT e.repo, MAX(e.occurred_at) AS at
        FROM activity_events e JOIN contributors c ON c.id = e.contributor_id
        WHERE 1=1${botFilter(url)}
        GROUP BY e.repo`,
-    ),
-  ]);
+      ),
+      // Per-repo per-contributor last activity: what lets the island route a
+      // clanking Ooga to the cave of the repo they actually contributed to.
+      env.DB.prepare(
+        `SELECT e.repo, c.login, MAX(e.occurred_at) AS at
+       FROM activity_events e JOIN contributors c ON c.id = e.contributor_id
+       WHERE 1=1${botFilter(url)}
+       GROUP BY e.repo, e.contributor_id`,
+      ),
+    ]);
   const contributors = contribRes.results as unknown as ContributorRow[];
   const rollups = rollupRes.results as unknown as RollupRow[];
   const recent = recentRes.results as unknown as RecentRow[];
   const lastActivity = lastRes.results as unknown as LastActivityRow[];
+  const repoContributors =
+    repoContribRes.results as unknown as RepoContributorRow[];
 
   const totals = emptyCounts();
   const perContributor = new Map<
@@ -163,6 +185,7 @@ async function assembleModel(env: Env, url: URL): Promise<StatsModel> {
         perContributor: new Map(),
         rollups: [],
         lastActivityAt: null,
+        contributorActivity: [],
       };
       perRepo.set(r.repo, slice);
     }
@@ -178,6 +201,14 @@ async function assembleModel(env: Env, url: URL): Promise<StatsModel> {
   for (const row of lastActivity) {
     const slice = perRepo.get(row.repo);
     if (slice) slice.lastActivityAt = row.at;
+  }
+  for (const row of repoContributors) {
+    const slice = perRepo.get(row.repo);
+    if (slice)
+      slice.contributorActivity.push({
+        login: row.login,
+        last_seen_at: row.at,
+      });
   }
 
   // "Total contributors" = union of humans with >=1 qualifying event (or
@@ -222,7 +253,10 @@ function contributorObjs(
         prs: pc.counts.prs,
         reviews: pc.counts.reviews,
       };
-      if (opts.withComments) counts["comments"] = pc.counts.comments;
+      if (opts.withComments) {
+        counts["issues"] = pc.counts.issues;
+        counts["comments"] = pc.counts.comments;
+      }
       const obj: Record<string, unknown> = {
         login: c.login,
         display_name: c.display_name,
@@ -235,13 +269,21 @@ function contributorObjs(
         const weekly = weeklyFrom(pc.rollups);
         obj["weekly"] = opts.withComments
           ? weekly
-          : weekly.map(({ comments: _c, ...w }) => w);
+          : weekly.map(({ issues: _i, comments: _c, ...w }) => w);
       }
       return obj;
     })
     .sort((a, b) => {
-      const ta = total({ comments: 0, ...(a["counts"] as object) } as Counts);
-      const tb = total({ comments: 0, ...(b["counts"] as object) } as Counts);
+      const ta = total({
+        issues: 0,
+        comments: 0,
+        ...(a["counts"] as object),
+      } as Counts);
+      const tb = total({
+        issues: 0,
+        comments: 0,
+        ...(b["counts"] as object),
+      } as Counts);
       return (
         tb - ta || ((a["login"] as string) < (b["login"] as string) ? -1 : 1)
       );
@@ -279,12 +321,14 @@ export function shapeV2(
           prs: slice.counts.prs,
           reviews: slice.counts.reviews,
         },
-        weekly: weeklyFrom(slice.rollups).map(({ comments: _c, ...w }) => w),
+        weekly: weeklyFrom(slice.rollups).map(
+          ({ issues: _i, comments: _c, ...w }) => w,
+        ),
       }))
       .sort(
         (a, b) =>
-          totalV2({ comments: 0, ...b.totals } as Counts) -
-            totalV2({ comments: 0, ...a.totals } as Counts) ||
+          totalV2({ issues: 0, comments: 0, ...b.totals } as Counts) -
+            totalV2({ issues: 0, comments: 0, ...a.totals } as Counts) ||
           (a.name < b.name ? -1 : 1),
       ),
     contributors: contributorObjs(model, {
@@ -320,6 +364,7 @@ export function shapeV3(model: StatsModel): Record<string, unknown> {
           },
           weekly: weeklyFrom(slice.rollups),
           last_activity_at: slice.lastActivityAt,
+          contributors: slice.contributorActivity,
           leaderboards: {
             commits: leaderboardFor(
               model.contributors,

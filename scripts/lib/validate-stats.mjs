@@ -9,7 +9,14 @@
 const ISO_DATE =
   /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d+)?(Z|[+-]\d{2}:\d{2})$/;
 const ISO_WEEK = /^\d{4}-W\d{2}$/;
-const RECENT_TYPES = new Set(["commit", "pr", "review", "merge", "comment"]);
+const RECENT_TYPES = new Set([
+  "commit",
+  "pr",
+  "review",
+  "merge",
+  "issue",
+  "comment",
+]);
 
 /**
  * @param {unknown} json
@@ -44,6 +51,11 @@ export function validateStats(json) {
 
   const countKeys =
     version === 3
+      ? ["commits", "prs", "reviews", "issues", "comments"]
+      : ["commits", "prs", "reviews"];
+  // Issues count everywhere but carry no leaderboard of their own.
+  const boardKeys =
+    version === 3
       ? ["commits", "prs", "reviews", "comments"]
       : ["commits", "prs", "reviews"];
 
@@ -74,7 +86,7 @@ export function validateStats(json) {
       fail(`${at} missing`);
       return;
     }
-    for (const k of countKeys) {
+    for (const k of boardKeys) {
       if (!Array.isArray(lb[k])) {
         fail(`${at}.${k} not an array`);
         continue;
@@ -107,6 +119,20 @@ export function validateStats(json) {
         )
           fail(`${at}.last_activity_at not ISO-8601|null`);
         checkBoards(r?.leaderboards, `${at}.leaderboards`);
+        if (!Array.isArray(r?.contributors))
+          fail(`${at}.contributors not an array`);
+        else
+          r.contributors.forEach(
+            (/** @type {any} */ c, /** @type {number} */ j) => {
+              if (typeof c?.login !== "string")
+                fail(`${at}.contributors[${j}].login not a string`);
+              if (
+                typeof c?.last_seen_at !== "string" ||
+                !ISO_DATE.test(c.last_seen_at)
+              )
+                fail(`${at}.contributors[${j}].last_seen_at not ISO-8601`);
+            },
+          );
       }
     });
   }

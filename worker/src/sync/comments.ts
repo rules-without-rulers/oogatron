@@ -30,7 +30,7 @@ query Issues($owner: String!, $name: String!, $cursor: String, $order: IssueOrde
     issues(first: 50, after: $cursor, orderBy: { field: $order, direction: $dir }) {
       pageInfo { hasNextPage endCursor }
       nodes {
-        id number updatedAt
+        id number updatedAt createdAt ${ACTOR}
         comments(first: 100) {
           pageInfo { hasNextPage endCursor }
           nodes { id createdAt ${ACTOR} }
@@ -65,6 +65,8 @@ interface GqlIssue {
   id: string;
   number: number;
   updatedAt: string;
+  createdAt: string;
+  author: GqlActor | null;
   comments: { pageInfo: PageInfo; nodes: GqlComment[] };
 }
 
@@ -79,6 +81,18 @@ function issueCommentEvents(
     actor: actorFrom(c.author),
     payload: { issueNumber, surface: "issue" },
   }));
+}
+
+// Opening an issue is a contribution of its own; the walker sees every issue
+// node anyway, so the event rides along with its comments.
+function issueEvent(issue: GqlIssue): ParsedEvent {
+  return {
+    type: "issue",
+    externalId: issue.id,
+    occurredAt: issue.createdAt,
+    actor: actorFrom(issue.author),
+    payload: { number: issue.number },
+  };
 }
 
 export function parseIssuesPage(data: Record<string, unknown>): {
@@ -147,6 +161,7 @@ export async function syncIssueComments(
       const events: ParsedEvent[] = [];
       let pageMax: string | null = s.maxSeen;
       for (const issue of issues) {
+        events.push(issueEvent(issue));
         events.push(...issueCommentEvents(issue.comments.nodes, issue.number));
         if (!(await drainIssueOverflow(ctx, issue, events))) return false;
         pageMax = maxIso(pageMax, issue.updatedAt);
@@ -185,6 +200,7 @@ export async function syncIssueComments(
         sawOlder = true;
         break;
       }
+      events.push(issueEvent(issue));
       events.push(...issueCommentEvents(issue.comments.nodes, issue.number));
       if (!(await drainIssueOverflow(ctx, issue, events))) return false;
       newWatermark = maxIso(newWatermark, issue.updatedAt)!;
