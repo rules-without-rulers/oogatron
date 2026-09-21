@@ -140,6 +140,14 @@ describe("/v2/stats (schema 3)", () => {
       { login: "alice", last_seen_at: "2026-01-13T10:00:00Z" },
       { login: "erik", last_seen_at: "2026-01-13T09:00:00Z" },
     ]);
+    // Membership is guaranteed to align with each repo's contributor total
+    // (both sides apply the same merge-commit exclusion) — the island's
+    // baked-snapshot integrity check relies on this invariant.
+    for (const repo of body.repos) {
+      expect(repo.contributors.length, repo.name).toBe(
+        repo.totals.contributors,
+      );
+    }
     expect(body.repos[1].leaderboards.comments).toEqual([
       { login: "erik", count: 1 },
     ]);
