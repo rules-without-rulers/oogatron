@@ -3,6 +3,7 @@ export type EventType =
   | "pr"
   | "review"
   | "merge"
+  | "issue"
   | "comment_issue"
   | "comment_review"
   | "comment_commit";

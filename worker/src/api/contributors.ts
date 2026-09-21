@@ -8,6 +8,7 @@ const EVENT_TYPES = new Set([
   "pr",
   "review",
   "merge",
+  "issue",
   "comment_issue",
   "comment_review",
   "comment_commit",
@@ -85,7 +86,13 @@ export async function handleContributor(
     .bind(...params)
     .all<{ type: string; occurred_at: string }>();
 
-  const counts: Counts = { commits: 0, prs: 0, reviews: 0, comments: 0 };
+  const counts: Counts = {
+    commits: 0,
+    prs: 0,
+    reviews: 0,
+    issues: 0,
+    comments: 0,
+  };
   const dayCounts = new Map<string, Map<string, number>>();
   for (const e of events.results) {
     addToCounts(counts, e.type, 1);

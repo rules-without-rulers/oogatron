@@ -8,8 +8,8 @@
 // jumbotron directory stays self-contained for drop-in integration.)
 
 /**
- * @typedef {{ commits: number, prs: number, reviews: number, comments: number }} Counts
- * @typedef {{ week: string, commits: number, prs: number, reviews: number, comments: number }} WeekBucket
+ * @typedef {{ commits: number, prs: number, reviews: number, issues: number, comments: number }} Counts
+ * @typedef {{ week: string, commits: number, prs: number, reviews: number, issues: number, comments: number }} WeekBucket
  * @typedef {{ login: string, display_name: string|null, avatar_url: string|null,
  *             first_seen_at: string|null, last_seen_at: string|null,
  *             counts: Counts, weekly: WeekBucket[] }} Contributor
@@ -96,7 +96,7 @@ export function parseStats(json) {
       leaderboards: normalizeBoards(r.leaderboards),
       weeklyTotals: weekly.map((w) => ({
         week: w.week,
-        total: w.commits + w.prs + w.reviews + w.comments,
+        total: w.commits + w.prs + w.reviews + w.issues + w.comments,
       })),
     };
   });
@@ -127,8 +127,9 @@ export function parseStats(json) {
       agg.commits += w.commits;
       agg.prs += w.prs;
       agg.reviews += w.reviews;
+      agg.issues += w.issues;
       agg.comments += w.comments;
-      agg.total += w.commits + w.prs + w.reviews + w.comments;
+      agg.total += w.commits + w.prs + w.reviews + w.issues + w.comments;
     }
   }
   const weeklyTotals = [...weeklyMap.values()].sort((a, b) =>
@@ -173,6 +174,7 @@ function normalizeCounts(counts) {
     commits: (counts?.commits ?? 0) | 0,
     prs: (counts?.prs ?? 0) | 0,
     reviews: (counts?.reviews ?? 0) | 0,
+    issues: (counts?.issues ?? 0) | 0,
     comments: (counts?.comments ?? 0) | 0,
   };
 }
@@ -196,6 +198,7 @@ function normalizeWeekly(weekly) {
       commits: w.commits | 0,
       prs: w.prs | 0,
       reviews: w.reviews | 0,
+      issues: w.issues | 0,
       comments: w.comments | 0,
     }))
     .sort((a, b) => (a.week < b.week ? -1 : 1));

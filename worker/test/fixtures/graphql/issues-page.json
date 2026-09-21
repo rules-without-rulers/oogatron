@@ -8,6 +8,13 @@
             "id": "I_kwDOtest0010",
             "number": 10,
             "updatedAt": "2026-01-13T09:00:00Z",
+            "createdAt": "2026-01-13T07:00:00Z",
+            "author": {
+              "login": "carla",
+              "avatarUrl": "https://avatars.example.com/carla.png",
+              "__typename": "User",
+              "databaseId": 6006
+            },
             "comments": {
               "pageInfo": { "hasNextPage": false, "endCursor": null },
               "nodes": [

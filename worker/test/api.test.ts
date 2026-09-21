@@ -29,7 +29,8 @@ async function seed(): Promise<void> {
        ('entropylab', 3, 'commit', 'e6', '2026-01-05T10:00:00Z', NULL),
        ('entropylab', 2, 'merge',  'merge:pr9', '2026-01-12T16:00:00Z', '{"prNumber":9,"mergeCommit":"e2"}'),
        ('entropylab', 1, 'comment_issue',  'e7', '2026-01-13T08:00:00Z', NULL),
-       ('bedrock',    2, 'comment_review', 'e8', '2026-01-13T09:00:00Z', NULL)`,
+       ('bedrock',    2, 'comment_review', 'e8', '2026-01-13T09:00:00Z', NULL),
+       ('bedrock',    1, 'issue',          'e9', '2026-01-13T10:00:00Z', NULL)`,
     ),
   ]);
   await recomputeRollups(env.DB);
@@ -51,6 +52,7 @@ describe("/v1/stats (schema 2, comments invisible)", () => {
       reviews: 1,
     });
     expect(body.totals.comments).toBeUndefined();
+    expect(body.totals.issues).toBeUndefined();
     expect(body.leaderboards.commits).toEqual([
       { login: "alice", count: 1 },
       { login: "erik", count: 1 },
@@ -90,6 +92,7 @@ describe("/v2/stats (schema 3)", () => {
       commits: 2,
       prs: 1,
       reviews: 1,
+      issues: 1,
       comments: 2,
     });
     expect(body.leaderboards.comments).toEqual([
@@ -106,6 +109,7 @@ describe("/v2/stats (schema 3)", () => {
       commits: 2,
       prs: 0,
       reviews: 1,
+      issues: 0,
       comments: 1,
     });
     expect(body.repos[0].last_activity_at).toBe("2026-01-13T08:00:00Z");
@@ -119,9 +123,23 @@ describe("/v2/stats (schema 3)", () => {
       commits: 0,
       prs: 1,
       reviews: 0,
+      issues: 1,
       comments: 1,
     });
-    expect(body.repos[1].last_activity_at).toBe("2026-01-13T09:00:00Z");
+    expect(body.repos[1].last_activity_at).toBe("2026-01-13T10:00:00Z");
+    // Per-repo contributor activity: what routes each Ooga to its repo's cave.
+    const activity = (i: number) =>
+      [...body.repos[i].contributors].sort((a: any, b: any) =>
+        a.login < b.login ? -1 : 1,
+      );
+    expect(activity(0)).toEqual([
+      { login: "alice", last_seen_at: "2026-01-13T08:00:00Z" },
+      { login: "erik", last_seen_at: "2026-01-12T16:00:00Z" },
+    ]);
+    expect(activity(1)).toEqual([
+      { login: "alice", last_seen_at: "2026-01-13T10:00:00Z" },
+      { login: "erik", last_seen_at: "2026-01-13T09:00:00Z" },
+    ]);
     expect(body.repos[1].leaderboards.comments).toEqual([
       { login: "erik", count: 1 },
     ]);
@@ -129,6 +147,7 @@ describe("/v2/stats (schema 3)", () => {
     // Recent: newest first, bot-filtered, merge commit deduped, comment
     // surfaces folded to "comment", merges labelled as merges.
     expect(body.recent.map((r: any) => [r.login, r.repo, r.type])).toEqual([
+      ["alice", "bedrock", "issue"],
       ["erik", "bedrock", "comment"],
       ["alice", "entropylab", "comment"],
       ["erik", "entropylab", "merge"],
@@ -141,6 +160,7 @@ describe("/v2/stats (schema 3)", () => {
       commits: 1,
       prs: 1,
       reviews: 0,
+      issues: 1,
       comments: 1,
     });
     expect(body.contributors[0].login).toBe("alice");
@@ -203,6 +223,11 @@ describe("/v1/contributors", () => {
       await SELF.fetch(`${BASE}/v1/contributors/alice?type=comment_issue`)
     ).json()) as any;
     expect(commented.counts.comments).toBe(1);
+
+    const opened = (await (
+      await SELF.fetch(`${BASE}/v1/contributors/alice?type=issue`)
+    ).json()) as any;
+    expect(opened.counts.issues).toBe(1);
 
     const bad = await SELF.fetch(`${BASE}/v1/contributors/alice?type=nope`);
     expect(bad.status).toBe(400);
