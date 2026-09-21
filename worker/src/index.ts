@@ -4,7 +4,7 @@ import { error } from "./api/respond";
 import { handleBackfill } from "./api/admin";
 import { handleContributor, handleContributors } from "./api/contributors";
 import { handleHealth } from "./api/health";
-import { handleStats } from "./api/stats";
+import { handleStats, handleStatsV3 } from "./api/stats";
 import { runSync } from "./sync/run";
 
 // Hand-rolled route table: five routes don't justify a router dependency, and
@@ -17,6 +17,7 @@ type Handler = (
 
 const routes: Array<[method: string, pattern: RegExp, handler: Handler]> = [
   ["GET", /^\/v1\/stats$/, (env, req) => cachedCors(env, req, handleStats)],
+  ["GET", /^\/v2\/stats$/, (env, req) => cachedCors(env, req, handleStatsV3)],
   [
     "GET",
     /^\/v1\/contributors$/,
@@ -47,7 +48,10 @@ async function cachedCors(
 export default {
   async fetch(request, env): Promise<Response> {
     const url = new URL(request.url);
-    if (request.method === "OPTIONS" && url.pathname.startsWith("/v1/")) {
+    if (
+      request.method === "OPTIONS" &&
+      (url.pathname.startsWith("/v1/") || url.pathname.startsWith("/v2/"))
+    ) {
       return preflight();
     }
     for (const [method, pattern, handler] of routes) {

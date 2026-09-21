@@ -1,8 +1,17 @@
 import { botFilter } from "../db/queries";
+import { MERGE_COMMIT_EXCLUSION } from "../db/rollups";
 import { addToCounts, assembleStats, weeklyFrom, type Counts } from "./stats";
 import { error, json } from "./respond";
 
-const EVENT_TYPES = new Set(["commit", "pr", "review"]);
+const EVENT_TYPES = new Set([
+  "commit",
+  "pr",
+  "review",
+  "merge",
+  "comment_issue",
+  "comment_review",
+  "comment_commit",
+]);
 
 export async function handleContributors(
   env: Env,
@@ -51,8 +60,9 @@ export async function handleContributor(
     return error(400, "from/to must be YYYY-MM-DD");
   }
 
-  let sql =
-    "SELECT type, occurred_at FROM activity_events WHERE contributor_id = ?";
+  // Same merge-commit exclusion as the rollup recompute, so this raw-event
+  // path can never disagree with the served rollup numbers.
+  let sql = `SELECT type, occurred_at FROM activity_events e WHERE e.contributor_id = ? AND ${MERGE_COMMIT_EXCLUSION}`;
   const params: unknown[] = [row.id];
   if (from) {
     sql += " AND occurred_at >= ?";
@@ -75,7 +85,7 @@ export async function handleContributor(
     .bind(...params)
     .all<{ type: string; occurred_at: string }>();
 
-  const counts: Counts = { commits: 0, prs: 0, reviews: 0 };
+  const counts: Counts = { commits: 0, prs: 0, reviews: 0, comments: 0 };
   const dayCounts = new Map<string, Map<string, number>>();
   for (const e of events.results) {
     addToCounts(counts, e.type, 1);

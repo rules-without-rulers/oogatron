@@ -5,6 +5,8 @@ import { parseCommitsPage } from "../src/sync/commits";
 import { isCountableReview } from "../src/sync/prs";
 import commitsPage from "./fixtures/graphql/commits-page.json";
 import prsPage from "./fixtures/graphql/prs-page.json";
+import issuesPage from "./fixtures/graphql/issues-page.json";
+import commitComments from "./fixtures/graphql/commit-comments.json";
 import orgRepos from "./fixtures/graphql/org-repos.json";
 
 // One dispatcher for the whole file; tests swap the OrgRepos response via
@@ -21,6 +23,8 @@ function mockGitHub() {
       if (body.query.includes("query OrgRepos")) return orgReposResponse as any;
       if (body.query.includes("query Commits")) return commitsPage;
       if (body.query.includes("query PRs")) return prsPage;
+      if (body.query.includes("query Issues")) return issuesPage;
+      if (body.query.includes("query CommitComments")) return commitComments;
       throw new Error(`unmocked GraphQL query: ${body.query.slice(0, 80)}`);
     })
     .persist();
@@ -58,7 +62,7 @@ async function syncStateMap(): Promise<Map<string, unknown>> {
 }
 
 describe("full sync against recorded GraphQL pages", () => {
-  it("discovers repos, ingests commits+prs, resolves identities, and is idempotent", async () => {
+  it("discovers repos, ingests every source, resolves identities, and is idempotent", async () => {
     orgReposResponse = orgRepos;
 
     const first = await runSync(env, "admin");
@@ -81,7 +85,18 @@ describe("full sync against recorded GraphQL pages", () => {
       commit: 3,
       pr: 2,
       review: 1, // APPROVED only: PENDING and the empty-body container are skipped
+      merge: 1, // PR #1, credited to erik who pressed the button
+      comment_review: 1,
+      comment_issue: 4, // PR conversation x2 + issue comments x2
+      comment_commit: 1,
     });
+    const mergeRow = await env.DB.prepare(
+      "SELECT external_id, payload FROM activity_events WHERE type = 'merge'",
+    ).first<{ external_id: string; payload: string }>();
+    expect(mergeRow!.external_id).toBe("merge:PR_kwDOtest0001");
+    expect(JSON.parse(mergeRow!.payload).mergeCommit).toBe(
+      "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa3",
+    );
     const repoScan = await env.DB.prepare(
       "SELECT DISTINCT repo FROM activity_events",
     ).all<{ repo: string }>();
@@ -115,11 +130,17 @@ describe("full sync against recorded GraphQL pages", () => {
     // Deleted PR author became ghost:
     expect(byLogin.get("ghost")).toBeDefined();
 
-    // Rollups were recomputed, repo-scoped.
+    // Rollups were recomputed, repo-scoped, and the merge commit (...a3, the
+    // PR's mergeCommit) was excluded so the merge is one credit, not two:
+    // 13 raw events minus the excluded commit.
     const rollups = await env.DB.prepare(
       "SELECT SUM(count) AS n FROM daily_rollups WHERE repo = 'entropylab'",
     ).first<{ n: number }>();
-    expect(rollups!.n).toBe(6);
+    expect(rollups!.n).toBe(12);
+    const dedupedCommit = await env.DB.prepare(
+      `SELECT SUM(count) AS n FROM daily_rollups WHERE type = 'commit'`,
+    ).first<{ n: number }>();
+    expect(dedupedCommit!.n).toBe(2); // a1 + a2; a3 folded into the merge
 
     // Sync state promoted to incremental, keyed per repo; the rotation
     // pointer recorded which repo led.
@@ -129,6 +150,12 @@ describe("full sync against recorded GraphQL pages", () => {
       "2026-01-07T12:00:00Z",
     );
     expect((state.get("entropylab/prs") as any).phase).toBe("incremental");
+    expect((state.get("entropylab/issue_comments") as any).phase).toBe(
+      "incremental",
+    );
+    expect((state.get("entropylab/commit_comments") as any).cursor).toBe(
+      "cc-cursor-1",
+    );
     expect(state.get("*/rotation")).toBe("entropylab");
 
     // Second run: incremental, and re-upserting the same pages changes nothing.
@@ -171,8 +198,17 @@ describe("full sync against recorded GraphQL pages", () => {
 
     // Both repos ingested the recorded pages; uniqueness is repo-scoped, so
     // the same external ids land once per repo.
-    expect(await eventCounts("alpha")).toEqual({ commit: 3, pr: 2, review: 1 });
-    expect(await eventCounts("beta")).toEqual({ commit: 3, pr: 2, review: 1 });
+    const perRepo = {
+      commit: 3,
+      pr: 2,
+      review: 1,
+      merge: 1,
+      comment_issue: 4,
+      comment_review: 1,
+      comment_commit: 1,
+    };
+    expect(await eventCounts("alpha")).toEqual(perRepo);
+    expect(await eventCounts("beta")).toEqual(perRepo);
 
     // Round-robin: alphabetical order on the first run (no pointer), so
     // alpha led; the next run starts after it, so beta leads.

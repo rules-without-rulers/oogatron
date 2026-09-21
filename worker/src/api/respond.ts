@@ -6,12 +6,13 @@ import { OWNER, SCHEMA_VERSION } from "../config";
 export function json(
   body: Record<string, unknown>,
   init?: ResponseInit,
+  schemaVersion: number = SCHEMA_VERSION,
 ): Response {
   const withMeta = {
     meta: {
       generated_at: new Date().toISOString(),
       org: OWNER,
-      schema_version: SCHEMA_VERSION,
+      schema_version: schemaVersion,
     },
     ...body,
   };

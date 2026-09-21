@@ -1,4 +1,11 @@
-export type EventType = "commit" | "pr" | "review";
+export type EventType =
+  | "commit"
+  | "pr"
+  | "review"
+  | "merge"
+  | "comment_issue"
+  | "comment_review"
+  | "comment_commit";
 
 // One discovered org repo, as the sync loop consumes it. defaultBranch comes
 // from discovery — hardcoding a branch would silently sync nothing for repos

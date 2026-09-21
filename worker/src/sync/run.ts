@@ -7,6 +7,12 @@ import { reconcileBots } from "./bots";
 import { activeRepos } from "./repos";
 import { syncCommits, type CommitsState } from "./commits";
 import { syncPrs, type PrsState } from "./prs";
+import {
+  syncCommitComments,
+  syncIssueComments,
+  type CommitCommentsState,
+  type IssuesState,
+} from "./comments";
 import { ContributorResolver } from "./identity";
 import { RateLimited } from "./github";
 import type { RepoRef } from "./types";
@@ -27,7 +33,7 @@ const ROTATION_SOURCE = "rotation";
 
 function isBackfilling(state: Map<string, unknown>, repos: RepoRef[]): boolean {
   return repos.some((repo) =>
-    ["commits", "prs"].some((s) => {
+    ["commits", "prs", "issue_comments"].some((s) => {
       const v = state.get(stateKey(repo.name, s)) as
         { phase?: string } | null | undefined;
       return !v || v.phase === "backfill";
@@ -125,7 +131,25 @@ export async function runSync(
           repo,
           state.get(stateKey(repo.name, "prs")) as PrsState | null,
         ));
-      if (!prsDone) {
+      const issuesDone =
+        prsDone &&
+        (await syncIssueComments(
+          ctx,
+          repo,
+          state.get(
+            stateKey(repo.name, "issue_comments"),
+          ) as IssuesState | null,
+        ));
+      const repoDone =
+        issuesDone &&
+        (await syncCommitComments(
+          ctx,
+          repo,
+          state.get(
+            stateKey(repo.name, "commit_comments"),
+          ) as CommitCommentsState | null,
+        ));
+      if (!repoDone) {
         done = false;
         break;
       }

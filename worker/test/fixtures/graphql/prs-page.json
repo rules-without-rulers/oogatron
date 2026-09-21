@@ -21,6 +21,15 @@
               "__typename": "User",
               "databaseId": 1001
             },
+            "mergedBy": {
+              "login": "erik",
+              "avatarUrl": "https://avatars.example.com/erik.png",
+              "__typename": "User",
+              "databaseId": 4004
+            },
+            "mergeCommit": {
+              "oid": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa3"
+            },
             "reviews": {
               "pageInfo": { "hasNextPage": false, "endCursor": null },
               "nodes": [
@@ -112,6 +121,8 @@
             "additions": 55,
             "deletions": 0,
             "author": null,
+            "mergedBy": null,
+            "mergeCommit": null,
             "reviews": {
               "pageInfo": { "hasNextPage": false, "endCursor": null },
               "nodes": []

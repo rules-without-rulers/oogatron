@@ -1,265 +1,367 @@
 <!doctype html>
 <html lang="en">
-<head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<link rel="icon" href="data:," />
-<title>oogatron control room</title>
-<style>
-  :root { color-scheme: dark; }
-  /* oogaboogaland day sky: zenith #3d75d6 -> horizon #b3d1f0 */
-  html, body { margin: 0; height: 100%; overflow: hidden;
-    background: linear-gradient(#3d75d6 0%, #5c8fd1 55%, #b3d1f0 100%); }
-  body { font: 13px/1.4 ui-monospace, Menlo, monospace; color: #f3efe4; }
-  #scene { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
-  #flat { position: absolute; inset: 0; display: none; align-items: center; justify-content: center;
-    background: #0a0a0b; }
-  #flat canvas { image-rendering: pixelated; width: min(96vw, calc(96vh * 16 / 9)); }
-  /* HUD chrome borrowed from oogaboogaland's tokens: dark panels, wood
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="icon" href="data:," />
+    <title>oogatron control room</title>
+    <style>
+      :root {
+        color-scheme: dark;
+      }
+      /* oogaboogaland day sky: zenith #3d75d6 -> horizon #b3d1f0 */
+      html,
+      body {
+        margin: 0;
+        height: 100%;
+        overflow: hidden;
+        background: linear-gradient(#3d75d6 0%, #5c8fd1 55%, #b3d1f0 100%);
+      }
+      body {
+        font:
+          13px/1.4 ui-monospace,
+          Menlo,
+          monospace;
+        color: #f3efe4;
+      }
+      #scene {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        display: block;
+      }
+      #flat {
+        position: absolute;
+        inset: 0;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        background: #0a0a0b;
+      }
+      #flat canvas {
+        image-rendering: pixelated;
+        width: min(96vw, calc(96vh * 16 / 9));
+      }
+      /* HUD chrome borrowed from oogaboogaland's tokens: dark panels, wood
      borders, #d8892b accent */
-  #hud {
-    position: absolute; left: 12px; bottom: 12px; display: flex; flex-wrap: wrap; gap: 6px;
-    max-width: calc(100vw - 24px);
-  }
-  #hud button, #hud select {
-    background: rgba(10, 10, 11, 0.82); color: #ededea; border: 1px solid #5c4425;
-    border-radius: 6px; font: inherit; padding: 4px 10px; cursor: pointer;
-  }
-  #hud button:hover { border-color: #d8892b; }
-  #hud button.active { border-color: #d8892b; color: #d8892b; }
-  #status {
-    position: absolute; left: 12px; top: 10px; color: #ededea; user-select: none;
-    background: rgba(10, 10, 11, 0.55); padding: 3px 8px; border-radius: 6px;
-  }
-  #status b { color: #d8892b; font-weight: 600; }
-  #err {
-    position: absolute; left: 50%; top: 40%; transform: translate(-50%, -50%);
-    background: #2b1519; border: 1px solid #e5533d; color: #ffb3ab;
-    padding: 12px 18px; border-radius: 6px; display: none; max-width: 70ch;
-  }
-</style>
-</head>
-<body>
-<canvas id="scene"></canvas>
-<div id="flat"></div>
-<div id="status">oogatron harness — loading…</div>
-<div id="err"></div>
-<div id="hud">
-  <button data-view="totals">1 totals</button>
-  <button data-view="leaderboard:commits">2 commits</button>
-  <button data-view="leaderboard:prs">3 prs</button>
-  <button data-view="leaderboard:reviews">4 reviews</button>
-  <select id="which-repo"><option value="">repo…</option></select>
-  <button id="next">n next</button>
-  <button id="rot" class="active">r rotate</button>
-</div>
+      #hud {
+        position: absolute;
+        left: 12px;
+        bottom: 12px;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+        max-width: calc(100vw - 24px);
+      }
+      #hud button,
+      #hud select {
+        background: rgba(10, 10, 11, 0.82);
+        color: #ededea;
+        border: 1px solid #5c4425;
+        border-radius: 6px;
+        font: inherit;
+        padding: 4px 10px;
+        cursor: pointer;
+      }
+      #hud button:hover {
+        border-color: #d8892b;
+      }
+      #hud button.active {
+        border-color: #d8892b;
+        color: #d8892b;
+      }
+      #status {
+        position: absolute;
+        left: 12px;
+        top: 10px;
+        color: #ededea;
+        user-select: none;
+        background: rgba(10, 10, 11, 0.55);
+        padding: 3px 8px;
+        border-radius: 6px;
+      }
+      #status b {
+        color: #d8892b;
+        font-weight: 600;
+      }
+      #err {
+        position: absolute;
+        left: 50%;
+        top: 40%;
+        transform: translate(-50%, -50%);
+        background: #2b1519;
+        border: 1px solid #e5533d;
+        color: #ffb3ab;
+        padding: 12px 18px;
+        border-radius: 6px;
+        display: none;
+        max-width: 70ch;
+      }
+    </style>
+  </head>
+  <body>
+    <canvas id="scene"></canvas>
+    <div id="flat"></div>
+    <div id="status">oogatron harness — loading…</div>
+    <div id="err"></div>
+    <div id="hud">
+      <button data-view="recent">1 recent</button>
+      <button data-view="totals">2 totals</button>
+      <button data-view="leaderboard:commits">3 commits</button>
+      <button data-view="leaderboard:prs">4 prs</button>
+      <button data-view="leaderboard:reviews">5 reviews</button>
+      <button data-view="leaderboard:comments">6 comments</button>
+      <select id="which-repo">
+        <option value="">repo…</option>
+      </select>
+      <button id="next">n next</button>
+      <button id="rot" class="active">r rotate</button>
+    </div>
 
-<script type="module">
-  import {
-    createJumbotron,
-    createJumbotronDisplay,
-  } from "../jumbotron/jumbotron.js";
+    <script type="module">
+      import {
+        createJumbotron,
+        createJumbotronDisplay,
+      } from "../jumbotron/jumbotron.js";
 
-  const params = new URLSearchParams(location.search);
-  const canvas2d = params.get("canvas2d") === "1";
-  const statusEl = document.getElementById("status");
-  const errEl = document.getElementById("err");
+      const params = new URLSearchParams(location.search);
+      const canvas2d = params.get("canvas2d") === "1";
+      const statusEl = document.getElementById("status");
+      const errEl = document.getElementById("err");
 
-  function fail(message) {
-    errEl.textContent = message;
-    errEl.style.display = "block";
-    statusEl.textContent = "oogatron harness — error";
-  }
+      function fail(message) {
+        errEl.textContent = message;
+        errEl.style.display = "block";
+        statusEl.textContent = "oogatron harness — error";
+      }
 
-  // ---- data: ?src=<worker base or stats url> else the baked fixture ------
-  async function loadStats() {
-    const src = params.get("src");
-    let url = "fixtures/stats.json";
-    if (src) {
-      url = src.endsWith(".json") || src.includes("/v1/") ? src : new URL("/v1/stats", src).toString();
-    }
-    const res = await fetch(url);
-    if (!res.ok) throw new Error(`GET ${url} -> HTTP ${res.status}`);
-    return { json: await res.json(), url };
-  }
+      // ---- data: ?src=<worker base or stats url> else the baked fixture ------
+      async function loadStats() {
+        const src = params.get("src");
+        let url = "fixtures/stats.json";
+        if (src) {
+          url =
+            src.endsWith(".json") || src.includes("/v1/")
+              ? src
+              : new URL("/v1/stats", src).toString();
+        }
+        const res = await fetch(url);
+        if (!res.ok) throw new Error(`GET ${url} -> HTTP ${res.status}`);
+        return { json: await res.json(), url };
+      }
 
-  // ---- tiny camera math ---------------------------------------------------
-  function perspective(fovY, aspect, near, far) {
-    const f = 1 / Math.tan(fovY / 2);
-    const nf = 1 / (near - far);
-    // prettier-ignore
-    return new Float32Array([
+      // ---- tiny camera math ---------------------------------------------------
+      function perspective(fovY, aspect, near, far) {
+        const f = 1 / Math.tan(fovY / 2);
+        const nf = 1 / (near - far);
+        // prettier-ignore
+        return new Float32Array([
       f / aspect, 0, 0, 0,
       0, f, 0, 0,
       0, 0, (far + near) * nf, -1,
       0, 0, 2 * far * near * nf, 0,
     ]);
-  }
-  function lookAt(eye, target, up) {
-    const sub = (a, b) => [a[0] - b[0], a[1] - b[1], a[2] - b[2]];
-    const norm = (v) => {
-      const l = Math.hypot(v[0], v[1], v[2]) || 1;
-      return [v[0] / l, v[1] / l, v[2] / l];
-    };
-    const cross = (a, b) => [
-      a[1] * b[2] - a[2] * b[1],
-      a[2] * b[0] - a[0] * b[2],
-      a[0] * b[1] - a[1] * b[0],
-    ];
-    const dot = (a, b) => a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
-    const z = norm(sub(eye, target));
-    const x = norm(cross(up, z));
-    const y = cross(z, x);
-    // prettier-ignore
-    return new Float32Array([
+      }
+      function lookAt(eye, target, up) {
+        const sub = (a, b) => [a[0] - b[0], a[1] - b[1], a[2] - b[2]];
+        const norm = (v) => {
+          const l = Math.hypot(v[0], v[1], v[2]) || 1;
+          return [v[0] / l, v[1] / l, v[2] / l];
+        };
+        const cross = (a, b) => [
+          a[1] * b[2] - a[2] * b[1],
+          a[2] * b[0] - a[0] * b[2],
+          a[0] * b[1] - a[1] * b[0],
+        ];
+        const dot = (a, b) => a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
+        const z = norm(sub(eye, target));
+        const x = norm(cross(up, z));
+        const y = cross(z, x);
+        // prettier-ignore
+        return new Float32Array([
       x[0], y[0], z[0], 0,
       x[1], y[1], z[1], 0,
       x[2], y[2], z[2], 0,
       -dot(x, eye), -dot(y, eye), -dot(z, eye), 1,
     ]);
-  }
-  function mul(a, b) {
-    const out = new Float32Array(16);
-    for (let c = 0; c < 4; c++)
-      for (let r = 0; r < 4; r++)
-        out[c * 4 + r] =
-          a[r] * b[c * 4] + a[4 + r] * b[c * 4 + 1] +
-          a[8 + r] * b[c * 4 + 2] + a[12 + r] * b[c * 4 + 3];
-    return out;
-  }
-
-  // ---- boot ---------------------------------------------------------------
-  let jumbo = null;      // WebGL path
-  let display = null;    // canvas2d path
-  const sceneCanvas = document.getElementById("scene");
-
-  function wireUi(target) {
-    const repoEl = document.getElementById("which-repo");
-    for (const btn of document.querySelectorAll("#hud button[data-view]")) {
-      btn.addEventListener("click", () => {
-        const [name, type] = btn.dataset.view.split(":");
-        target.setView(name, type ? { type } : undefined);
-        setRotating(false);
-      });
-    }
-    repoEl.addEventListener("change", () => {
-      if (repoEl.value) {
-        target.setView("repo", { name: repoEl.value });
-        setRotating(false);
       }
-    });
-    document.getElementById("next").addEventListener("click", () => target.nextView());
-    const rotBtn = document.getElementById("rot");
-    let rotating = true;
-    function setRotating(on) {
-      rotating = on;
-      target.autoRotate(on ? 6 : 0);
-      rotBtn.classList.toggle("active", on);
-    }
-    rotBtn.addEventListener("click", () => setRotating(!rotating));
-    setRotating(true);
+      function mul(a, b) {
+        const out = new Float32Array(16);
+        for (let c = 0; c < 4; c++)
+          for (let r = 0; r < 4; r++)
+            out[c * 4 + r] =
+              a[r] * b[c * 4] +
+              a[4 + r] * b[c * 4 + 1] +
+              a[8 + r] * b[c * 4 + 2] +
+              a[12 + r] * b[c * 4 + 3];
+        return out;
+      }
 
-    window.addEventListener("keydown", (e) => {
-      const views = ["totals", "leaderboard:commits", "leaderboard:prs",
-        "leaderboard:reviews"];
-      const idx = Number(e.key) - 1;
-      if (idx >= 0 && idx < views.length) {
-        const [name, type] = views[idx].split(":");
-        target.setView(name, type ? { type } : undefined);
-        setRotating(false);
-      } else if (e.key === "n") target.nextView();
-      else if (e.key === "r") setRotating(!rotating);
-    });
-  }
+      // ---- boot ---------------------------------------------------------------
+      let jumbo = null; // WebGL path
+      let display = null; // canvas2d path
+      const sceneCanvas = document.getElementById("scene");
 
-  function fillRepoPicker(json) {
-    const repoEl = document.getElementById("which-repo");
-    for (const r of json.repos ?? []) {
-      const opt = document.createElement("option");
-      opt.value = r.name;
-      opt.textContent = r.name;
-      repoEl.appendChild(opt);
-    }
-  }
-
-  try {
-    const { json, url } = await loadStats();
-
-    if (canvas2d) {
-      // Canvas-2D degradation path: show the board canvas directly.
-      sceneCanvas.style.display = "none";
-      display = createJumbotronDisplay({ pixelDensity: 1 });
-      display.update(json);
-      const flat = document.getElementById("flat");
-      flat.style.display = "flex";
-      flat.appendChild(display.canvas);
-      wireUi(display);
-      const tick = (ms) => {
-        display.render(ms / 1000);
-        requestAnimationFrame(tick);
-      };
-      requestAnimationFrame(tick);
-      statusEl.innerHTML = `oogatron harness — <b>canvas2d</b> — data: ${url}`;
-    } else {
-      const gl = sceneCanvas.getContext("webgl2", { antialias: true });
-      if (!gl) throw new Error("WebGL2 unavailable — retry with ?canvas2d=1");
-
-      jumbo = createJumbotron(gl, { position: [0, 0.25, 0], scale: 1 });
-      jumbo.update(json);
-      wireUi(jumbo);
-
-      // orbit camera
-      let yaw = 0.35, pitch = 0.12, dist = 3.2, auto = true;
-      sceneCanvas.addEventListener("pointerdown", (e) => {
-        auto = false;
-        sceneCanvas.setPointerCapture(e.pointerId);
-      });
-      sceneCanvas.addEventListener("pointermove", (e) => {
-        if (e.buttons & 1) {
-          yaw += e.movementX * 0.005;
-          pitch = Math.max(-1.2, Math.min(1.2, pitch + e.movementY * 0.005));
+      function wireUi(target) {
+        const repoEl = document.getElementById("which-repo");
+        // Leaderboards are per repo: use the picker's repo, else the first one.
+        const leaderboardRepo = () => repoEl.value || repoEl.options[1]?.value;
+        for (const btn of document.querySelectorAll("#hud button[data-view]")) {
+          btn.addEventListener("click", () => {
+            const [name, type] = btn.dataset.view.split(":");
+            target.setView(
+              name,
+              type ? { type, repo: leaderboardRepo() } : undefined,
+            );
+            setRotating(false);
+          });
         }
-      });
-      sceneCanvas.addEventListener("wheel", (e) => {
-        e.preventDefault();
-        dist = Math.max(1.4, Math.min(9, dist * (1 + e.deltaY * 0.001)));
-      }, { passive: false });
+        repoEl.addEventListener("change", () => {
+          if (repoEl.value) {
+            target.setView("repo", { name: repoEl.value });
+            setRotating(false);
+          }
+        });
+        document
+          .getElementById("next")
+          .addEventListener("click", () => target.nextView());
+        const rotBtn = document.getElementById("rot");
+        let rotating = true;
+        function setRotating(on) {
+          rotating = on;
+          target.autoRotate(on ? 6 : 0);
+          rotBtn.classList.toggle("active", on);
+        }
+        rotBtn.addEventListener("click", () => setRotating(!rotating));
+        setRotating(true);
 
-      function resize() {
-        const dpr = Math.min(window.devicePixelRatio || 1, 2);
-        sceneCanvas.width = Math.round(sceneCanvas.clientWidth * dpr);
-        sceneCanvas.height = Math.round(sceneCanvas.clientHeight * dpr);
+        window.addEventListener("keydown", (e) => {
+          const views = [
+            "recent",
+            "totals",
+            "leaderboard:commits",
+            "leaderboard:prs",
+            "leaderboard:reviews",
+            "leaderboard:comments",
+          ];
+          const idx = Number(e.key) - 1;
+          if (idx >= 0 && idx < views.length) {
+            const [name, type] = views[idx].split(":");
+            target.setView(
+              name,
+              type ? { type, repo: leaderboardRepo() } : undefined,
+            );
+            setRotating(false);
+          } else if (e.key === "n") target.nextView();
+          else if (e.key === "r") setRotating(!rotating);
+        });
       }
-      window.addEventListener("resize", resize);
-      resize();
 
-      gl.enable(gl.DEPTH_TEST);
-      gl.enable(gl.CULL_FACE);
+      function fillRepoPicker(json) {
+        const repoEl = document.getElementById("which-repo");
+        for (const r of json.repos ?? []) {
+          const opt = document.createElement("option");
+          opt.value = r.name;
+          opt.textContent = r.name;
+          repoEl.appendChild(opt);
+        }
+      }
 
-      const frame = (ms) => {
-        const t = ms / 1000;
-        if (auto) yaw += 0.0018;
-        const eye = [
-          Math.sin(yaw) * Math.cos(pitch) * dist,
-          Math.sin(pitch) * dist + 0.3,
-          Math.cos(yaw) * Math.cos(pitch) * dist,
-        ];
-        gl.viewport(0, 0, sceneCanvas.width, sceneCanvas.height);
-        gl.clearColor(0, 0, 0, 0); // transparent: the CSS sky shows through
-        gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-        const proj = perspective(0.9, sceneCanvas.width / sceneCanvas.height, 0.1, 100);
-        const view = lookAt(eye, [0, 0.15, 0], [0, 1, 0]);
-        jumbo.draw(mul(proj, view), t);
-        requestAnimationFrame(frame);
-      };
-      requestAnimationFrame(frame);
-      statusEl.innerHTML = `oogatron harness — <b>webgl2</b> — data: ${url} — drag to orbit, wheel to zoom`;
-    }
+      try {
+        const { json, url } = await loadStats();
 
-    fillRepoPicker(json);
-  } catch (e) {
-    fail(e instanceof Error ? e.message : String(e));
-  }
-</script>
-</body>
+        if (canvas2d) {
+          // Canvas-2D degradation path: show the board canvas directly.
+          sceneCanvas.style.display = "none";
+          display = createJumbotronDisplay({ pixelDensity: 1 });
+          display.update(json);
+          const flat = document.getElementById("flat");
+          flat.style.display = "flex";
+          flat.appendChild(display.canvas);
+          wireUi(display);
+          const tick = (ms) => {
+            display.render(ms / 1000);
+            requestAnimationFrame(tick);
+          };
+          requestAnimationFrame(tick);
+          statusEl.innerHTML = `oogatron harness — <b>canvas2d</b> — data: ${url}`;
+        } else {
+          const gl = sceneCanvas.getContext("webgl2", { antialias: true });
+          if (!gl)
+            throw new Error("WebGL2 unavailable — retry with ?canvas2d=1");
+
+          jumbo = createJumbotron(gl, { position: [0, 0.25, 0], scale: 1 });
+          jumbo.update(json);
+          wireUi(jumbo);
+
+          // orbit camera
+          let yaw = 0.35,
+            pitch = 0.12,
+            dist = 3.2,
+            auto = true;
+          sceneCanvas.addEventListener("pointerdown", (e) => {
+            auto = false;
+            sceneCanvas.setPointerCapture(e.pointerId);
+          });
+          sceneCanvas.addEventListener("pointermove", (e) => {
+            if (e.buttons & 1) {
+              yaw += e.movementX * 0.005;
+              pitch = Math.max(
+                -1.2,
+                Math.min(1.2, pitch + e.movementY * 0.005),
+              );
+            }
+          });
+          sceneCanvas.addEventListener(
+            "wheel",
+            (e) => {
+              e.preventDefault();
+              dist = Math.max(1.4, Math.min(9, dist * (1 + e.deltaY * 0.001)));
+            },
+            { passive: false },
+          );
+
+          function resize() {
+            const dpr = Math.min(window.devicePixelRatio || 1, 2);
+            sceneCanvas.width = Math.round(sceneCanvas.clientWidth * dpr);
+            sceneCanvas.height = Math.round(sceneCanvas.clientHeight * dpr);
+          }
+          window.addEventListener("resize", resize);
+          resize();
+
+          gl.enable(gl.DEPTH_TEST);
+          gl.enable(gl.CULL_FACE);
+
+          const frame = (ms) => {
+            const t = ms / 1000;
+            if (auto) yaw += 0.0018;
+            const eye = [
+              Math.sin(yaw) * Math.cos(pitch) * dist,
+              Math.sin(pitch) * dist + 0.3,
+              Math.cos(yaw) * Math.cos(pitch) * dist,
+            ];
+            gl.viewport(0, 0, sceneCanvas.width, sceneCanvas.height);
+            gl.clearColor(0, 0, 0, 0); // transparent: the CSS sky shows through
+            gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+            const proj = perspective(
+              0.9,
+              sceneCanvas.width / sceneCanvas.height,
+              0.1,
+              100,
+            );
+            const view = lookAt(eye, [0, 0.15, 0], [0, 1, 0]);
+            jumbo.draw(mul(proj, view), t);
+            requestAnimationFrame(frame);
+          };
+          requestAnimationFrame(frame);
+          statusEl.innerHTML = `oogatron harness — <b>webgl2</b> — data: ${url} — drag to orbit, wheel to zoom`;
+        }
+
+        fillRepoPicker(json);
+      } catch (e) {
+        fail(e instanceof Error ? e.message : String(e));
+      }
+    </script>
+  </body>
 </html>

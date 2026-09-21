@@ -1,5 +1,5 @@
 // Data intake for the jumbotron. This is the ONLY module that understands the
-// /v1/stats JSON shape (schema_version 2); views consume the parsed model and
+// /v2/stats JSON shape (schema_version 3); views consume the parsed model and
 // never touch raw JSON. Unknown extra fields are tolerated — the API contract
 // allows additive changes within a schema version. Zero dependencies.
 //
@@ -8,23 +8,27 @@
 // jumbotron directory stays self-contained for drop-in integration.)
 
 /**
- * @typedef {{ commits: number, prs: number, reviews: number }} Counts
- * @typedef {{ week: string, commits: number, prs: number, reviews: number }} WeekBucket
+ * @typedef {{ commits: number, prs: number, reviews: number, comments: number }} Counts
+ * @typedef {{ week: string, commits: number, prs: number, reviews: number, comments: number }} WeekBucket
  * @typedef {{ login: string, display_name: string|null, avatar_url: string|null,
  *             first_seen_at: string|null, last_seen_at: string|null,
  *             counts: Counts, weekly: WeekBucket[] }} Contributor
  * @typedef {{ login: string, count: number }} LeaderboardEntry
+ * @typedef {{ commits: LeaderboardEntry[], prs: LeaderboardEntry[],
+ *             reviews: LeaderboardEntry[], comments: LeaderboardEntry[] }} Boards
  * @typedef {{ name: string, totals: Counts & { contributors: number },
- *             weekly: WeekBucket[],
+ *             weekly: WeekBucket[], lastActivityAt: string|null,
+ *             leaderboards: Boards,
  *             weeklyTotals: Array<{ week: string, total: number }> }} RepoStats
+ * @typedef {{ login: string, repo: string, type: string, occurredAt: string }} RecentEntry
  *
  * @typedef {{
  *   org: string,
  *   generatedAt: string,
  *   totals: Counts & { contributors: number },
- *   leaderboards: { commits: LeaderboardEntry[], prs: LeaderboardEntry[],
- *                   reviews: LeaderboardEntry[] },
+ *   leaderboards: Boards,
  *   repos: RepoStats[],
+ *   recent: RecentEntry[],
  *   contributors: Contributor[],
  *   byLogin: Map<string, Contributor>,
  *   latestWeek: string|null,
@@ -44,10 +48,16 @@ export function parseStats(json) {
   }
   const root = /** @type {Record<string, any>} */ (json);
   const version = root.meta?.schema_version;
-  if (version !== 2) {
+  if (version !== 3) {
     throw new Error(`unsupported stats schema_version: ${String(version)}`);
   }
-  for (const key of ["totals", "leaderboards", "repos", "contributors"]) {
+  for (const key of [
+    "totals",
+    "leaderboards",
+    "repos",
+    "recent",
+    "contributors",
+  ]) {
     if (root[key] === undefined)
       throw new Error(`stats payload missing ${key}`);
   }
@@ -81,25 +91,44 @@ export function parseStats(json) {
         ...normalizeCounts(r.totals),
       },
       weekly,
+      lastActivityAt:
+        typeof r.last_activity_at === "string" ? r.last_activity_at : null,
+      leaderboards: normalizeBoards(r.leaderboards),
       weeklyTotals: weekly.map((w) => ({
         week: w.week,
-        total: w.commits + w.prs + w.reviews,
+        total: w.commits + w.prs + w.reviews + w.comments,
       })),
     };
   });
+
+  /** @type {RecentEntry[]} */
+  const recent = (Array.isArray(root.recent) ? root.recent : []).map((e) => ({
+    login: String(e.login),
+    repo: String(e.repo),
+    type: String(e.type),
+    occurredAt: String(e.occurred_at),
+  }));
 
   const weeklyMap = new Map();
   for (const c of contributors) {
     for (const w of c.weekly) {
       let agg = weeklyMap.get(w.week);
       if (!agg) {
-        agg = { week: w.week, commits: 0, prs: 0, reviews: 0, total: 0 };
+        agg = {
+          week: w.week,
+          commits: 0,
+          prs: 0,
+          reviews: 0,
+          comments: 0,
+          total: 0,
+        };
         weeklyMap.set(w.week, agg);
       }
       agg.commits += w.commits;
       agg.prs += w.prs;
       agg.reviews += w.reviews;
-      agg.total += w.commits + w.prs + w.reviews;
+      agg.comments += w.comments;
+      agg.total += w.commits + w.prs + w.reviews + w.comments;
     }
   }
   const weeklyTotals = [...weeklyMap.values()].sort((a, b) =>
@@ -115,12 +144,9 @@ export function parseStats(json) {
       contributors: root.totals.contributors | 0,
       ...normalizeCounts(root.totals),
     },
-    leaderboards: {
-      commits: normalizeBoard(root.leaderboards.commits),
-      prs: normalizeBoard(root.leaderboards.prs),
-      reviews: normalizeBoard(root.leaderboards.reviews),
-    },
+    leaderboards: normalizeBoards(root.leaderboards),
     repos,
+    recent,
     contributors,
     byLogin,
     latestWeek,
@@ -147,6 +173,17 @@ function normalizeCounts(counts) {
     commits: (counts?.commits ?? 0) | 0,
     prs: (counts?.prs ?? 0) | 0,
     reviews: (counts?.reviews ?? 0) | 0,
+    comments: (counts?.comments ?? 0) | 0,
+  };
+}
+
+/** @param {any} lb @returns {Boards} */
+function normalizeBoards(lb) {
+  return {
+    commits: normalizeBoard(lb?.commits),
+    prs: normalizeBoard(lb?.prs),
+    reviews: normalizeBoard(lb?.reviews),
+    comments: normalizeBoard(lb?.comments),
   };
 }
 
@@ -159,6 +196,7 @@ function normalizeWeekly(weekly) {
       commits: w.commits | 0,
       prs: w.prs | 0,
       reviews: w.reviews | 0,
+      comments: w.comments | 0,
     }))
     .sort((a, b) => (a.week < b.week ? -1 : 1));
 }

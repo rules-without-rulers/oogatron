@@ -23,7 +23,7 @@ if (!values.url) {
   process.exit(2);
 }
 
-const endpoint = new URL("/v1/stats", values.url).toString();
+const endpoint = new URL("/v2/stats", values.url).toString();
 const res = await fetch(endpoint);
 if (!res.ok) {
   console.error(`GET ${endpoint} -> HTTP ${res.status}`);

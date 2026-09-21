@@ -7,6 +7,7 @@ import {
   fitText,
   glyphOf,
   measureText,
+  recentAge,
 } from "../../jumbotron/views.js";
 import fixture from "../../harness/fixtures/stats.json";
 
@@ -35,38 +36,37 @@ describe("data.js parseStats", () => {
     const model = parseStats(fixture);
     expect(model.org).toBe("OogaBoogaX");
     expect(model.totals.contributors).toBeGreaterThan(0);
+    expect(Number.isInteger(model.totals.comments)).toBe(true);
     expect(model.repos.length).toBeGreaterThan(0);
     expect(model.repos[0].name).toBe("entropylab");
     expect(model.repos[0].totals.commits).toBeGreaterThan(0);
+    expect(model.repos[0].leaderboards.commits.length).toBeGreaterThan(0);
+    expect(model.repos[0].lastActivityAt).toMatch(/^\d{4}-/);
+    expect(model.recent.length).toBeGreaterThan(0);
     expect(model.contributors.length).toBeGreaterThan(0);
     expect(model.byLogin.has(model.contributors[0].login)).toBe(true);
     expect(model.latestWeek).toMatch(/^\d{4}-W\d{2}$/);
     expect(model.weeklyTotals.length).toBeGreaterThan(0);
   });
 
-  it("rejects unknown schema versions but tolerates extra fields", () => {
-    expect(() =>
-      parseStats({
-        meta: { schema_version: 1 },
-        totals: {},
-        leaderboards: {},
-        repos: [],
-        contributors: [],
-      }),
-    ).toThrow(/schema_version/);
-    expect(() =>
-      parseStats({
-        meta: { schema_version: 99 },
-        totals: {},
-        leaderboards: {},
-        repos: [],
-        contributors: [],
-      }),
-    ).toThrow(/schema_version/);
+  it("rejects other schema versions but tolerates extra fields", () => {
+    for (const schema_version of [1, 2, 99]) {
+      expect(() =>
+        parseStats({
+          meta: { schema_version },
+          totals: {},
+          leaderboards: {},
+          repos: [],
+          recent: [],
+          contributors: [],
+        }),
+      ).toThrow(/schema_version/);
+    }
     const extended = JSON.parse(JSON.stringify(fixture));
     extended.meta.someFutureField = true;
     extended.contributors[0].badge = "gold";
     extended.repos[0].mascot = "gorilla";
+    extended.recent[0].mood = "jubilant";
     expect(() => parseStats(extended)).not.toThrow();
   });
 });
@@ -83,17 +83,28 @@ describe("views.js bitmap font", () => {
     expect(glyphOf("~").length).toBe(7);
     expect(fitText("abcdefgh", 24)).toBe("abcd"); // 24px fits 4 glyphs
   });
+
+  it("recentAge compresses to minutes, hours, days", () => {
+    const now = Date.parse("2026-01-10T12:00:00Z");
+    expect(recentAge("2026-01-10T11:55:00Z", now)).toBe("5M");
+    expect(recentAge("2026-01-10T09:00:00Z", now)).toBe("3H");
+    expect(recentAge("2026-01-08T09:00:00Z", now)).toBe("2D");
+    expect(recentAge("2026-01-11T00:00:00Z", now)).toBe("NOW"); // future-safe
+  });
 });
 
 describe("view renderers against the real fixture", () => {
   const model = parseStats(fixture);
+  const repoName = model.repos[0].name;
   const cases: Array<[string, unknown]> = [
+    ["recent", undefined],
     ["totals", undefined],
-    ["repo", { name: model.repos[0].name }],
+    ["repo", { name: repoName }],
     ["repo", { name: "no-such-repo-falls-back" }],
-    ["leaderboard", { type: "commits" }],
-    ["leaderboard", { type: "prs" }],
-    ["leaderboard", { type: "reviews" }],
+    ["leaderboard", { type: "commits", repo: repoName }],
+    ["leaderboard", { type: "prs", repo: repoName }],
+    ["leaderboard", { type: "reviews", repo: repoName }],
+    ["leaderboard", { type: "comments", repo: repoName }],
   ];
 
   it.each(cases)(
@@ -113,13 +124,16 @@ describe("view renderers against the real fixture", () => {
       expect(ctx.rects.length).toBeGreaterThan(100);
       // full-board clear happens first
       expect(ctx.rects[0]).toMatchObject({ x: 0, y: 0, w: 192, h: 108 });
+      // nothing is painted below the board's bottom edge
+      expect(ctx.rects.every((r) => r.y + r.h <= 108)).toBe(true);
       expect(typeof animated).toBe("boolean");
     },
   );
 
-  it("removed views (ticker, contributor) are gone from the registry", () => {
+  it("the registry holds exactly the v3 view set", () => {
     expect(Object.keys(VIEWS).sort()).toEqual([
       "leaderboard",
+      "recent",
       "repo",
       "totals",
     ]);

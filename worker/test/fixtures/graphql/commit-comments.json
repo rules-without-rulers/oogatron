@@ -1,0 +1,23 @@
+{
+  "data": {
+    "repository": {
+      "commitComments": {
+        "pageInfo": { "hasNextPage": false, "endCursor": "cc-cursor-1" },
+        "nodes": [
+          {
+            "id": "CC_kwDOtest0001",
+            "createdAt": "2026-01-14T10:00:00Z",
+            "commit": { "oid": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa1" },
+            "author": {
+              "login": "dana",
+              "avatarUrl": "https://avatars.example.com/dana.png",
+              "__typename": "User",
+              "databaseId": 3003
+            }
+          }
+        ]
+      }
+    },
+    "rateLimit": { "remaining": 4870, "resetAt": "2026-01-15T00:00:00Z" }
+  }
+}
