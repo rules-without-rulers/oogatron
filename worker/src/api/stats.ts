@@ -148,10 +148,13 @@ async function assembleModel(env: Env, url: URL): Promise<StatsModel> {
       ),
       // Per-repo per-contributor last activity: what lets the island route a
       // clanking Ooga to the cave of the repo they actually contributed to.
+      // The merge-commit exclusion keeps membership identical by construction
+      // to the rollup-derived repos[].totals.contributors, so consumers may
+      // assert the two counts align.
       env.DB.prepare(
         `SELECT e.repo, c.login, MAX(e.occurred_at) AS at
        FROM activity_events e JOIN contributors c ON c.id = e.contributor_id
-       WHERE 1=1${botFilter(url)}
+       WHERE ${MERGE_COMMIT_EXCLUSION}${botFilter(url)}
        GROUP BY e.repo, e.contributor_id`,
       ),
     ]);
