@@ -98,6 +98,15 @@ describe("full sync against recorded GraphQL pages", () => {
     expect(JSON.parse(mergeRow!.payload).mergeCommit).toBe(
       "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa3",
     );
+    const prRows = await env.DB.prepare(
+      "SELECT external_id, payload FROM activity_events WHERE type = 'pr' ORDER BY external_id",
+    ).all<{ external_id: string; payload: string }>();
+    expect(
+      prRows.results.map((r) => [r.external_id, JSON.parse(r.payload).draft]),
+    ).toEqual([
+      ["PR_kwDOtest0001", false],
+      ["PR_kwDOtest0002", true],
+    ]);
     const repoScan = await env.DB.prepare(
       "SELECT DISTINCT repo FROM activity_events",
     ).all<{ repo: string }>();
